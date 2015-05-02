@@ -84,7 +84,7 @@ problems(df2)
 
 # convert all of the date variables
 grep("date", names(df2), ignore.case=TRUE, value=TRUE)
-df3 <- df2 %>% mutate_each(funs(dmy(.)), fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules)
+df3 <- df2 %>% mutate_each(funs(as.Date(dmy(.))), fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules)
 # which dates did not parse?
 names(df2)
 # get character version of dates
