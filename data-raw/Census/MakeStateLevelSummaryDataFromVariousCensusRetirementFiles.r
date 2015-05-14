@@ -241,7 +241,7 @@ gettab <- function(year, tabnum, valnames) {
   return(dfl)
 }
 
-tab2names <- c("totrec", "eec", "erc", "erc.sg", "erc.lg", "invinc")
+tab2names <- c("totrev", "eec", "erc", "erc.sg", "erc.lg", "invinc")
 dft2 <- ldply(1993:2003, gettab, 2, tab2names)
 
 tab3names <- c("totpay", "benefits", "withdraw", "otherpay")
@@ -433,27 +433,95 @@ df2 <- readRDS(paste0(cendir, "statesummary1993to2003.rds"))
 df3 <- readRDS(paste0(cendir, "statesummary2004to2011.rds"))
 df4 <- readRDS(paste0(cendir, "statesummary2012plus.rds"))
 
-xwalk <- "uvname, file, fvname, fvalue
-nsystems, df1, variable, systems
-nsystems, df2, variable, nsystems
-nsystems, df3, ItemID, 32
-nsystems, df4, col, C036
+glimpse(df1)
+glimpse(df2)
+glimpse(df3)
+glimpse(df4)
+count(df1, variable)
+count(df2, variable)
+count(df3, ItemID, ItemName)
+tmp <- count(df4, col, description)
+
+
+# variable, variable, ItemID, col -are the "native" variables for df1-df4 respectively
+# not all files have total contributions (erc + eec), so calculate that
+# don't bother with total revenue (contrib + invinc) - can calc if needed
+xwalk.s <- "uvname, file, fvalue
+nsystems, df1, systems
+nsystems, df2, nsystems
+nsystems, df3, 32
+nsystems, df4, C036
+
+members, df1, totmemb
+members, df2, totmem
+members, df3, 28
+members, df4, C038
+
+actives, df1, active
+actives, df2, actives
+actives, df3, 29
+actives, df4, C039
+
+inactives, df1, inactive
+inactives, df2, inactives
+inactives, df3, 30
+inactives, df4, C040
+
+beneficiaries, df1, totbenef
+beneficiaries, df2, beneficiaries
+beneficiaries, df3, 31
+beneficiaries, df4, C042
+
+payroll, df4, C044
+
+eec, df1, totempcontrb
+eec, df2, eec
+eec, df3, 1
+eec, df4, C003
+
+erc, df1, totgovcontrb
+erc, df2, erc
+erc, df3, 3
+erc, df4, C004
+
+erc.sg, df1, contrbstate
+erc.sg, df2, erc.sg
+erc.sg, df3, 4
+erc.sg, df4, C005
+
+erc.lg, df1, contrblocal
+erc.lg, df2, erc.lg
+erc.lg, df3, 5
+erc.lg, df4, C006
+
+invinc, df1, totalearns
+invinc, df2, invinc
+invinc, df3, 6
+invinc, df4, C008
+
+totexpend, df1, toterexp
+totexpend, df2, totpay
+totexpend, df3, 7
+totexpend, df4, C010
+
+benefits, df1, benefits
+benefits, df2, benefits
+benefits, df3, 8
+benefits, df4, C011
+
+assets, df1, totercashsec
+assets, df2, assets
+assets, df3, 11
+assets, df4, C015
 "
-xwalk <- read_csv(xwalk) %>% mutate_each(funs(str_trim))
+xwalk <- read_csv(xwalk.s) %>% mutate_each(funs(str_trim))
 names(xwalk) <- str_trim(names(xwalk)) # just in case spaces crept into the names
+xwalk %<>% filter(!is.na(file))
 xwalk
 df1xw <- select(filter(xwalk, file=="df1"), uvname, fvalue)
 df2xw <- select(filter(xwalk, file=="df2"), uvname, fvalue)
 df3xw <- select(filter(xwalk, file=="df3"), uvname, fvalue)
 df4xw <- select(filter(xwalk, file=="df4"), uvname, fvalue)
-
-getxwvar <- function(vname, dfname, currentdf=.) {
-  df <- xwalk %>% filter(file=dfname) %>%
-    select(uvname, fvalue)
-  var <- df$uvname[match(currentdfvariable, df1xw$fvalue)]
-  return(var)
-}
-
 
 glimpse(df1)
 count(df1, variable)
@@ -518,6 +586,7 @@ qplot(year, value, data=filter(dfall, variable=="nsystems", stabbr=="US", admin=
 
 cenretss <- dfall
 devtools::use_data(cenretss, overwrite=TRUE)
+
 
 
 
