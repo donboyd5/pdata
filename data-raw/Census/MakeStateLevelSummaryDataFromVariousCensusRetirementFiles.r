@@ -523,6 +523,8 @@ df2xw <- select(filter(xwalk, file=="df2"), uvname, fvalue)
 df3xw <- select(filter(xwalk, file=="df3"), uvname, fvalue)
 df4xw <- select(filter(xwalk, file=="df4"), uvname, fvalue)
 
+# focus on getting adminf right for each file, and creating admin from it
+
 glimpse(df1)
 count(df1, variable)
 count(df1, year)
@@ -530,8 +532,8 @@ count(df1, admin)
 df1a <- df1 %>% filter(year<1993, admin %in% 1:3) %>%
   mutate(uvname=df1xw$uvname[match(variable, df1xw$fvalue)]) %>% # get the uniform variable name
   filter(!is.na(uvname)) %>%
-  mutate(admin=as.character(factor(admin, levels=1:3, labels=c("State-local", "State", "Local")))) %>%
-  select(year, stabbr, admin, uvname, value)
+  mutate(adminf=as.character(factor(admin, levels=1:3, labels=c("State-local", "State", "Local")))) %>%
+  select(year, stabbr, adminf, uvname, value)
 
 
 glimpse(df2)
@@ -541,8 +543,8 @@ count(df2, admin)
 df2a <- df2 %>% filter(admin %in% c("Total", "State", "Local")) %>%
   mutate(uvname=df2xw$uvname[match(variable, df2xw$fvalue)]) %>% # get the uniform variable name
   filter(!is.na(uvname)) %>%
-  mutate(admin=ifelse(admin=="Total", "State-local", admin)) %>%
-  select(year, stabbr, admin, uvname, value)
+  mutate(adminf=ifelse(admin=="Total", "State-local", admin)) %>%
+  select(year, stabbr, adminf, uvname, value)
 
 
 glimpse(df3)
@@ -552,8 +554,8 @@ count(df3, ItemID, ItemName)
 df3a <- df3 %>% filter(type %in% 1:3) %>%
   mutate(uvname=df3xw$uvname[match(ItemID, df3xw$fvalue)]) %>% # get the uniform variable name
   filter(!is.na(uvname)) %>%
-  mutate(admin=as.character(factor(type, levels=1:3, labels=c("State-local", "State", "Local")))) %>%
-  select(year, stabbr, admin, uvname, value)
+  mutate(adminf=as.character(factor(type, levels=1:3, labels=c("State-local", "State", "Local")))) %>%
+  select(year, stabbr, adminf, uvname, value)
 
 
 glimpse(df4)
@@ -562,8 +564,8 @@ tmp <- count(df4, col, description)
 df4a <- df4 %>%
   mutate(uvname=df4xw$uvname[match(col, df4xw$fvalue)]) %>% # get the uniform variable name
   filter(!is.na(uvname)) %>%
-  mutate(admin=ifelse(admin=="Total", "State-local", admin)) %>%
-  select(year, stabbr, admin, uvname, value)
+  mutate(adminf=ifelse(admin=="Total", "State-local", admin)) %>%
+  select(year, stabbr, adminf, uvname, value)
 
 
 # Now put the 4 files together year, admin, stabbr, uvname, value
@@ -575,14 +577,17 @@ count(df1a, year); count(df2a, year); count(df3a, year); count(df4a, year)
 
 dfall <- bind_rows(df1a, df2a, df3a, df4a) %>%
   rename(variable=uvname) %>%
-  arrange(stabbr, admin, variable, year)
+  mutate(year=as.integer(year),
+         admin=as.integer(factor(adminf, levels=c("State-local", "State", "Local"), labels=1:3))) %>%
+  select(year, stabbr, admin, adminf, variable, value) %>%
+  arrange(stabbr, admin, adminf, variable, year)
 glimpse(dfall)
 count(dfall, variable)
 count(dfall, stabbr)
-count(dfall, admin)
+count(dfall, admin, adminf)
 count(dfall, year)
 
-qplot(year, value, data=filter(dfall, variable=="nsystems", stabbr=="US", admin=="State-local"), geom=c("point", "line"))
+qplot(year, value, data=filter(dfall, variable=="nsystems", stabbr=="US", admin==1), geom=c("point", "line"))
 
 cenretss <- dfall
 devtools::use_data(cenretss, overwrite=TRUE)
