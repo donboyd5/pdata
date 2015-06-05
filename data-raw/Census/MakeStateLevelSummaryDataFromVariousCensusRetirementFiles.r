@@ -1,6 +1,6 @@
 # MakeStateLevelSummaryDataFromVariousCensusRetirementFiles.r
 # Don Boyd
-# 5/14/2015
+# 6/5/2015
 
 # This program creates state-level summary data on retirement systems using Census data, for as many years as possible.
 # While I had wanted to build state summaries from details for individual systems, several years have imputations for
@@ -44,30 +44,26 @@
 
 
 #************************************************************************************************************************
-#
 #                Load packages ####
-#
 #************************************************************************************************************************
 
-library(plyr)
-library(dplyr)
+library("plyr")
+library("dplyr")
 options(dplyr.print_min = 60) # default is 10
 options(dplyr.print_max = 60) # default is 20
-library(ggplot2)
-library(magrittr)
-library(readr)
-library(readxl)
-library(stringr)
-library(tidyr)
+library("ggplot2")
+library("magrittr")
+library("readr")
+library("readxl")
+library("stringr")
+library("tidyr")
 
-library(bdata)
-library(btools)
+library("bdata")
+library("btools")
 
 
 #************************************************************************************************************************
-#
 #                Directories, filenames, constants ####
-#
 #************************************************************************************************************************
 
 cendir <- paste0("./data-raw/Census/")
@@ -79,9 +75,7 @@ affdir <- paste0(censs, "AmericanFactFinder2012plus/")
 
 
 #************************************************************************************************************************
-#
 #                Downloads, ONLY when needed ####
-#
 #************************************************************************************************************************
 # get the Census historical database
 histdb <- "1_Emp_Retire_Historical_DB.zip"
@@ -92,9 +86,7 @@ download.file(url, paste0(cendir, histdb), mode="wb")
 
 
 #************************************************************************************************************************
-#
 #                1957-1992: Get and clean state summary data in the historical database ####
-#
 #************************************************************************************************************************
 # admin type codes
 acodesv <- "admin, adminf
@@ -207,9 +199,7 @@ saveRDS(df3, paste0(cendir, "statesummaryhist.rds"))
 
 
 #************************************************************************************************************************
-#
 #                1993-2003: Get and clean state summary data ####
-#
 #************************************************************************************************************************
 # gettab handles tables 2, 3, and 4, which have similar formats (but tab 4 has different variables over time)
 gettab <- function(year, tabnum, valnames) {
@@ -292,9 +282,7 @@ saveRDS(dfall, paste0(cendir, "statesummary1993to2003.rds"))
 
 
 #************************************************************************************************************************
-#
 #                2004-2011:  Get and clean state summary data ####
-#
 #************************************************************************************************************************
 # type codes
 # I think these are the same as for the historical DB, but for now create them separately here just in case we need to vary them
@@ -358,9 +346,7 @@ saveRDS(ssdf2, paste0(cendir, "statesummary2004to2011.rds"))
 
 
 #************************************************************************************************************************
-#
 #                2012+: Get and clean state summary data ####
-#
 #************************************************************************************************************************
 # first get the data, then the metadata
 # get the data
@@ -387,7 +373,9 @@ getaff <- function(year) {
     select(stabbr, admin, variable, lvl, col, year, value) %>%
     arrange(stabbr, admin, lvl, col, year)
 
-  df3 <- df2 %>% mutate(type=ifelse(str_sub(lvl, -1) %in% c("0", "1", "2", "a"), "amount", "CV")) %>%
+  # distinguish amount columns from CV columns and drop the CVs
+  cvcols <- c("lvl0b", "lvl2a")
+  df3 <- df2 %>% mutate(type=ifelse(lvl %in% cvcols, "cv", "amount")) %>%
     filter(type=="amount") %>%
     select(-type, -lvl) %>%
     mutate(value=cton(value))
@@ -416,16 +404,14 @@ dfm <- ldply(2012:2013, getmeta)
 
 df %<>% mutate(description=dfm$description[match(variable, dfm$variable)])
 
-tmp <- count(df, year, description) %>% spread(year, n) # good - same in both years!
+tmp <- count(df, year, description) %>% spread(year, n) # examine in viewer - good - same in both years!
 count(df, col, description) %>% filter(n!=312) # to identify any that have different cols -- none found
 
 saveRDS(select(df, -variable), paste0(cendir, "statesummary2012plus.rds"))
 
 
 #************************************************************************************************************************
-#
 #                1957-2013+ - Create unified summary data ####
-#
 #************************************************************************************************************************
 # create a uniform file with variables stabbr, admin, adminf, year, variable, for 50 states, DC, US
 df1 <- readRDS(paste0(cendir, "statesummaryhist.rds"))
