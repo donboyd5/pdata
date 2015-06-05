@@ -388,6 +388,9 @@ count(df, admin)
 count(df, year)
 count(df, variable)
 
+filter(df, stabbr=="US", col=="C015")
+
+
 fn <- paste0("PP_", 2013, "_PP00SL_metadata.csv")
 
 getmeta <- function(year){
@@ -579,6 +582,6 @@ cenretss <- dfall
 devtools::use_data(cenretss, overwrite=TRUE)
 
 
-
+# dfall %>% filter(stabbr=="US", variable=="assets", year>=2010)
 
 
