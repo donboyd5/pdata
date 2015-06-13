@@ -96,7 +96,21 @@ df2 %>% filter(is.na(ppd_id))
 # 41	Kentucky ERS	near 2001
 # 110	TN State and Teachers	near 2013
 # tell JP, but for now, delete
-ppd <- df3 %>% filter(!is.na(ppd_id))
+df4 <- df3 %>% filter(!is.na(ppd_id))
+
+
+# Now create a few useful factors
+# Classifiers:
+# PlanType 1-PERS or SERS, 2- TRS, 3- Police/Fire/Safety
+# AdministeringGovt  0-State, 1-County, 2-City, 5- School
+ptlevs <- c(1, 2, 3, 4, 5)
+ptlabs <- c("General-S&L", "Teachers", "Safety", "General-State", "General-Local")
+
+adlevs <- c(0, 1, 2, 5)
+adlabs <- c("State", "County", "City", "School")
+
+ppd <- df4 %>% mutate(planf=factor(PlanType, levels=ptlevs, labels=ptlabs),
+                       adminf=factor(AdministeringGovt, levels=adlevs, labels=adlabs))
 
 devtools::use_data(ppd, overwrite=TRUE)
 
