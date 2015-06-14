@@ -110,7 +110,11 @@ adlevs <- c(0, 1, 2, 5)
 adlabs <- c("State", "County", "City", "School")
 
 ppd <- df4 %>% mutate(planf=factor(PlanType, levels=ptlevs, labels=ptlabs),
-                       adminf=factor(AdministeringGovt, levels=adlevs, labels=adlabs))
+                      adminf=factor(AdministeringGovt, levels=adlevs, labels=adlabs),
+                      pctdollf=factor(FundingMethCode1_GASB, levels=c(1, 0, NA), labels=c("levpercent", "levdollar")),
+                      openclosedf=factor(FundingMethCode2_GASB, levels=1:3, labels=c("open", "fixed", "closed")),
+                      assetmethf=factor(AssetValMethCode_GASB, levels=1:0, labels=c("market", "smoothed"))
+                      )
 
 devtools::use_data(ppd, overwrite=TRUE)
 
