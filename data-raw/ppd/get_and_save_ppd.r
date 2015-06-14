@@ -98,7 +98,6 @@ df2 %>% filter(is.na(ppd_id))
 # tell JP, but for now, delete
 df4 <- df3 %>% filter(!is.na(ppd_id))
 
-
 # Now create a few useful factors
 # Classifiers:
 # PlanType 1-PERS or SERS, 2- TRS, 3- Police/Fire/Safety
