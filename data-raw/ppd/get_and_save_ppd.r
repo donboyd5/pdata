@@ -97,6 +97,7 @@ df2 %>% filter(is.na(ppd_id))
 # 110	TN State and Teachers	near 2013
 # tell JP, but for now, delete
 df4 <- df3 %>% filter(!is.na(ppd_id))
+head(df4)
 
 # Now create a few useful factors
 # Classifiers:
