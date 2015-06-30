@@ -59,6 +59,7 @@ df <- read_excel(paste0(ppd.dir, vlist.localfn))
 glimpse(df)
 # doesn't really look to need cleaning
 ppdvars <- df
+comment(ppdvars) <- vlist.localfn
 devtools::use_data(ppdvars, overwrite=TRUE)
 
 
@@ -115,6 +116,7 @@ ppd <- df4 %>% mutate(planf=factor(PlanType, levels=ptlevs, labels=ptlabs),
                       openclosedf=factor(FundingMethCode2_GASB, levels=1:3, labels=c("open", "fixed", "closed")),
                       assetmethf=factor(AssetValMethCode_GASB, levels=1:0, labels=c("market", "smoothed"))
                       )
+comment(ppd) <- ppd.localfn
 
 devtools::use_data(ppd, overwrite=TRUE)
 
