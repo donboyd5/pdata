@@ -1,7 +1,7 @@
 FIN008ALL
-State- and Locally-Administered Defined Benefit Pension Systems - All Data by State and Level of Government: 2013
+State and Locally-Administered Defined Benefit Pension Systems - All Data by State and Level of Government: 2014
 
-Fiscal Year 2013 (1)
+Fiscal Year 2014 (1)
 
 Data shown in thousands of dollars  (2)
 
@@ -9,8 +9,8 @@ Data shown in thousands of dollars  (2)
 
 (1)There are exceptions to the fiscal year rule for the state pension systems
 in Alabama, Michigan, and Texas. For systems in these states, the fiscal year moves 
-beyond the June 30 cutoff. The data for the survey year 2013 covers the fiscal year
-ending August 31, 2013 for Texas and September 30, 2013 for Alabama and Michigan.
+beyond the June 30 cutoff. The data for the survey year 2014 covers the fiscal year
+ending August 31, 2014 for Texas and September 30, 2014 for Alabama and Michigan.
 These exceptions are made to better align the data with the Survey of State Government
 Finances.
 
@@ -45,7 +45,7 @@ prior to 2012 should be exercised with caution.
 Data are released on a flow basis and replaced when revised data are available. See the 
 Federal, State, and Local Governments release schedule.
 
-Source: U.S. Census Bureau, 2013 Annual Survey of Public
+Source: U.S. Census Bureau, 2014 Annual Survey of Public
 Pensions: State-Administered Defined Benefit Data. 
 
 

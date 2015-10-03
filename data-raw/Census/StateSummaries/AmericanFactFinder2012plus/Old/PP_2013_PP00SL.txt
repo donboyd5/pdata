@@ -24,23 +24,24 @@ market value in accordance with Statement 34 of the Governmental Accounting Stan
 Board is reflected in the calculated statistics.
 
 Effective with the 2012 survey cycle, the Annual Survey of Public Pensions: State-Administered
-Defined Benefit Data revised the survey form to implement changes in asset classification. These 
-changes apply to the categories designated as corporate stocks, corporate bonds, federal 
-government securities, state and local government securities, and other
-securities. Federally-sponsored agency securities are
-classified under federal government securities instead of
-corporate bonds.  Private equity, venture capital, and leverage
+ Defined Benefit Data revised the survey form to implement changes in asset classification. These 
+ changes apply to the categories designated as corporate stocks, corporate bonds, federal 
+ government securities, state and local government securities, and other
+ securities. Federally-sponsored agency securities are
+ classified under federal government securities instead of
+ corporate bonds.  Private equity, venture capital, and leverage
 buyouts are classified under corporate stocks instead 
 of other securities. Due to these changes in asset classification,
-there are shifts in the distribution  of assets from corporate
-bonds to federal government securities and from other securities to 
-corporate stocks. However, since investment decisions guide
-the distribution of assets, we  cannot calculate the exact impact
-that the changes in classification had on the asset distribution 
-for 2012. As such, for the above mentioned asset categories, any
-data comparisons between  data from 2012 to the present, and data
-prior to 2012 should be exercised with caution.
+ there are shifts in the distribution  of assets from corporate
+ bonds to federal government securities and from other securities to 
+ corporate stocks. However, since investment decisions guide
+ the distribution of assets, we  cannot calculate the exact impact
+ that the changes in classification had on the asset distribution 
+ for 2012. As such, for the above mentioned asset categories, any
+ data comparisons between  data from 2012 to the present, and data
+ prior to 2012 should be exercised with caution.
 
+Initial data release: February 2015
 
 Data are released on a flow basis and replaced when revised data are available. See the 
 Federal, State, and Local Governments release schedule.
@@ -57,5 +58,11 @@ Pension obligations and Covered payroll for defined benefit pension systems are 
 at the state level.
 
 
+Data users who create their own estimates using these data should cite the 
+U.S. Census Bureau as the source of the original data only. The data in this table are
+based on information from public records and contain no confidential data. Although the
+data in this table come from a census of pension systems and are not subject to
+sampling error, the census results do contain nonsampling error. Additional information
+on nonsampling error, response rates, and definitions may be found within the survey methodology.
 
 

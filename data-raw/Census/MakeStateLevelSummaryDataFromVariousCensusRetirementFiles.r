@@ -1,6 +1,6 @@
 # MakeStateLevelSummaryDataFromVariousCensusRetirementFiles.r
 # Don Boyd
-# 6/5/2015
+# 10/3/2015
 
 # This program creates state-level summary data on retirement systems using Census data, for as many years as possible.
 # While I had wanted to build state summaries from details for individual systems, several years have imputations for
@@ -353,24 +353,38 @@ saveRDS(ssdf2, paste0(cendir, "statesummary2004to2011.rds"))
 # first row is variable description
 # variable name is 2 parts: 1) level, and 2) column id
 # in 2012, lvl is 0, 1, or 2 for state-local, state, or local
-# in 2013, lvl is 0a or 0b for state-local amount and CV, 1 for state, and 2a or 2b for local amount and CV
-# column id APPEARS to mean the same thing in each year but I'm going to grab the description from the first row, to be save
+# in 2013+, lvl is 0a or 0b for state-local amount and CV, 1 for state, and 2a or 2b for local amount and CV
+# column id APPEARS to mean the same thing in each year but I'm going to grab the description from the first row, to be safe
 # the first-row description has two parts - before semi-colon is the level, and after is the description
 # the level description in 2013 identifies amount or CV, whereas in 2012 it does not
 
-getaff <- function(year) {
-  fn <- paste0("PP_", year, "_PP00SL_with_ann.csv")
+fn <- aff.files[1]
+
+getaff <- function(fn) {
+  # extract year from file name
+  split_get <- function(alist, splitchar, itemget) {
+    items <- str_split(alist, splitchar) %>% sapply(., "[", itemget)
+    return(items)
+  }
+  year <- as.numeric(split_get(fn, "_", 2))
   df <- read_csv(paste0(affdir, fn))
   names(df)[1:3] <- c("geoid", "geoid2", "geoname")
+
+  cenvnames <- data_frame(variable=names(df), text=str_trim(df[1, ])) %>%
+    filter(!variable %in% names(df)[1:3]) %>%
+    # separate(variable, c("lvl", "col"), sep="_", remove=FALSE, extra="drop") %>%
+    separate(text, c("type", "description"), sep=";", extra="drop") %>%
+    mutate(year=year, description=str_trim(description))
 
   df2 <- df %>% gather(variable, value, -c(geoid, geoid2, geoname)) %>%
     mutate(stabbr=stcodes$stabbr[match(geoname, stcodes$stname)]) %>%
     filter(stabbr %in% stcodes$stabbr) %>%
+    mutate(description=cenvnames$description[match(variable, cenvnames$variable)]) %>%
     separate(variable, c("lvl", "col"), remove=FALSE) %>%
     mutate(admin=as.character(factor(str_sub(lvl, 4, 4), levels=c("0", "1", "2"), labels=c("Total", "State", "Local"))),
            year=year) %>%
     select(-geoid, -geoid2, -geoname) %>%
-    select(stabbr, admin, variable, lvl, col, year, value) %>%
+    select(stabbr, admin, variable, lvl, col, description, year, value) %>%
     arrange(stabbr, admin, lvl, col, year)
 
   # distinguish amount columns from CV columns and drop the CVs
@@ -382,33 +396,15 @@ getaff <- function(year) {
   return(df3)
 }
 
-df <- ldply(2012:2013, getaff)
+aff.files <- c("COG_2012_COGPP00SL_with_ann.csv", "PP_2013_PP00SL_with_ann.csv", "PP_2014_PP00SL_with_ann.csv")
+
+df <- ldply(aff.files, getaff)
 count(df, stabbr)
 count(df, admin)
 count(df, year)
 count(df, variable)
-
-filter(df, stabbr=="US", col=="C015")
-
-
-fn <- paste0("PP_", 2013, "_PP00SL_metadata.csv")
-
-getmeta <- function(year){
-  fn <- paste0("PP_", year, "_PP00SL_metadata.csv")
-  meta <- read_csv(paste0(affdir, fn), col_names=FALSE) %>%
-     rename(variable=X1, text=X2) %>%
-     separate(variable, c("lvl", "col"), sep="_", remove=FALSE, extra="drop") %>%
-     separate(text, c("type", "description"), sep=";", extra="drop") %>%
-     mutate(year=year,
-            description=str_trim(description))
-  return(meta)
-}
-dfm <- ldply(2012:2013, getmeta)
-
-df %<>% mutate(description=dfm$description[match(variable, dfm$variable)])
-
-tmp <- count(df, year, description) %>% spread(year, n) # examine in viewer - good - same in both years!
-count(df, col, description) %>% filter(n!=312) # to identify any that have different cols -- none found
+tmp <- count(df, variable, description)
+tmp <- df %>% count(year, col, description) %>% spread(year, n)
 
 saveRDS(select(df, -variable), paste0(cendir, "statesummary2012plus.rds"))
 
@@ -577,6 +573,7 @@ count(dfall, admin, adminf)
 count(dfall, year)
 
 qplot(year, value, data=filter(dfall, variable=="nsystems", stabbr=="US", admin==1), geom=c("point", "line"))
+qplot(year, value, data=filter(dfall, variable=="erc", stabbr=="US", admin==1), geom=c("point", "line"))
 
 cenretss <- dfall
 devtools::use_data(cenretss, overwrite=TRUE)

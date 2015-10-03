@@ -1,14 +1,46 @@
 # getAnnualUnitFiles.r
 # Don Boyd
-# 3/22/2015
+# 10/3/2015
 
 # get all of the annual data, WITH IMPUTATIONS
 # not sure it's worth going back before 2007, given extensive changes in Census-defined universe and in measurement of vars
 
+
 #************************************************************************************************************************
-#
+#                Loads ####
+#************************************************************************************************************************
+library("plyr") # always load BEFORE loading dplyr
+library("dplyr")
+options(dplyr.print_min = 60) # default is 10
+options(dplyr.print_max = 60) # default is 20
+library("foreign") # various import and export routines - e.g., for reading Stata files
+library("gdata") # for reading spreadsheets
+library("knitr")
+library("lubridate")
+library("ggplot2")
+library("magrittr")
+library("readr")
+library("readxl")
+library("stringr")
+library("tidyr")
+
+# load my packages last
+# devtools::install_github("donboyd5/apitools")
+# devtools::install_github("donboyd5/bdata")
+# devtools::install_github("donboyd5/btools")
+# devtools::install_github("donboyd5/pdata")
+# devtools::install_github("donboyd5/decrements")
+library("apitools")
+library("bdata")
+library("btools")
+library("grDevices")
+library("xtable")
+library("RColorBrewer") # for custom map colors
+# sessionInfo()
+
+
+#************************************************************************************************************************
 #                Get names for each unit id ####
-#
 #************************************************************************************************************************
 # 2007-2011 look pretty clean; 2012 and 2013 use the same file, and that file has some problems ####
 ids1 <- paste0(2007:2011, "retid.txt")
@@ -29,7 +61,7 @@ chunk <- scan(file=paste0(uidd, "unit_id_file.txt"), what="", sep="\n", nlines=-
 iddf2 <- data_frame(id=str_sub(chunk, 1, 14), idname=str_sub(chunk, 16, 100), pubname=str_sub(chunk, 101, nchar(chunk)))
 
 # combine the files, trim, and update pubname
-iddf <- bind_rows(iddf1, mutate(iddf2, year=2012), mutate(iddf2, year=2013)) %>% 
+iddf <- bind_rows(iddf1, mutate(iddf2, year=2012), mutate(iddf2, year=2013)) %>%
   mutate_each(funs(trim)) %>%
   mutate(pubname2=ifelse(pubname=="", idname, pubname))
 
@@ -126,7 +158,7 @@ sum(df$`2012`)
 # glimpse(unitdf)
 # count(unitdf, ic)
 # count(unitdf, id) %>% nrow # only 1608 rows!?
-# 
+#
 # # get unit ids ####
 # # cn <- c("id", "idname")
 # # iddf <- read_fwf(paste0(d2012, idfn), fwf_positions(c(1, 16), c(14, 100), col_names=cn), col_types="cc")
@@ -138,15 +170,15 @@ sum(df$`2012`)
 # iddf2 <- iddf %>% mutate(pubname2=ifelse(pubname=="", idname, pubname))
 
 
-# 0 = State 
-# 1 = County 
-# 2 = City 
-# 3 = Municipalities and Townships 
-# 4 = Special Districts 
+# 0 = State
+# 1 = County
+# 2 = City
+# 3 = Municipalities and Townships
+# 4 = Special Districts
 # 5 = Schools
 
 # retdf <- left_join(unitdf, select(iddf2, -pubname, pubname=pubname2))
-# retdf2 <- retdf %>% mutate(year=2012, stcode=str_sub(id, 1, 2), 
+# retdf2 <- retdf %>% mutate(year=2012, stcode=str_sub(id, 1, 2),
 #                            stabbr=stcodes$stabbr[match(stcode, stcodes$stcen)],
 #                            icf=icdf$icdesc[match(ic, icdf$ic)],
 #                            type=as.numeric(str_sub(id, 3, 3)),

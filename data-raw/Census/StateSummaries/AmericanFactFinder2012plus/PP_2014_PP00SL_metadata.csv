@@ -1,0 +1,183 @@
+GEO.id,Id
+GEO.id2,Id2
+GEO.display-label,Geography
+lvl0a_C002,State and Local - Amount; Total contributions
+lvl0b_C002,State and Local - CV; Total contributions
+lvl1_C002,State; Total contributions
+lvl2b_C002,Local - Amount; Total contributions
+lvl2a_C002,Local - CV; Total contributions
+lvl0a_C003,State and Local - Amount; Total contributions - Employee contributions
+lvl0b_C003,State and Local - CV; Total contributions - Employee contributions
+lvl1_C003,State; Total contributions - Employee contributions
+lvl2b_C003,Local - Amount; Total contributions - Employee contributions
+lvl2a_C003,Local - CV; Total contributions - Employee contributions
+lvl0a_C004,State and Local - Amount; Total contributions - Government contributions
+lvl0b_C004,State and Local - CV; Total contributions - Government contributions
+lvl1_C004,State; Total contributions - Government contributions
+lvl2b_C004,Local - Amount; Total contributions - Government contributions
+lvl2a_C004,Local - CV; Total contributions - Government contributions
+lvl0a_C005,State and Local - Amount; Total contributions - Government contributions - State government contributions
+lvl0b_C005,State and Local - CV; Total contributions - Government contributions - State government contributions
+lvl1_C005,State; Total contributions - Government contributions - State government contributions
+lvl2b_C005,Local - Amount; Total contributions - Government contributions - State government contributions
+lvl2a_C005,Local - CV; Total contributions - Government contributions - State government contributions
+lvl0a_C006,State and Local - Amount; Total contributions - Government contributions - Local government contributions
+lvl0b_C006,State and Local - CV; Total contributions - Government contributions - Local government contributions
+lvl1_C006,State; Total contributions - Government contributions - Local government contributions
+lvl2b_C006,Local - Amount; Total contributions - Government contributions - Local government contributions
+lvl2a_C006,Local - CV; Total contributions - Government contributions - Local government contributions
+lvl0a_C008,State and Local - Amount; Earnings on investments (3)
+lvl0b_C008,State and Local - CV; Earnings on investments (3)
+lvl1_C008,State; Earnings on investments (3)
+lvl2b_C008,Local - Amount; Earnings on investments (3)
+lvl2a_C008,Local - CV; Earnings on investments (3)
+lvl0a_C010,State and Local - Amount; Total payments
+lvl0b_C010,State and Local - CV; Total payments
+lvl1_C010,State; Total payments
+lvl2b_C010,Local - Amount; Total payments
+lvl2a_C010,Local - CV; Total payments
+lvl0a_C011,State and Local - Amount; Total payments - Benefits
+lvl0b_C011,State and Local - CV; Total payments - Benefits
+lvl1_C011,State; Total payments - Benefits
+lvl2b_C011,Local - Amount; Total payments - Benefits
+lvl2a_C011,Local - CV; Total payments - Benefits
+lvl0a_C012,State and Local - Amount; Total payments - Withdrawals
+lvl0b_C012,State and Local - CV; Total payments - Withdrawals
+lvl1_C012,State; Total payments - Withdrawals
+lvl2b_C012,Local - Amount; Total payments - Withdrawals
+lvl2a_C012,Local - CV; Total payments - Withdrawals
+lvl0a_C013,State and Local - Amount; Total payments - Other payments
+lvl0b_C013,State and Local - CV; Total payments - Other payments
+lvl1_C013,State; Total payments - Other payments
+lvl2b_C013,Local - Amount; Total payments - Other payments
+lvl2a_C013,Local - CV; Total payments - Other payments
+lvl0a_C015,State and Local - Amount; Total cash and investment holdings
+lvl0b_C015,State and Local - CV; Total cash and investment holdings
+lvl1_C015,State; Total cash and investment holdings
+lvl2b_C015,Local - Amount; Total cash and investment holdings
+lvl2a_C015,Local - CV; Total cash and investment holdings
+lvl0a_C016,State and Local - Amount; Total cash and investment holdings - Total cash and short-term investments
+lvl0b_C016,State and Local - CV; Total cash and investment holdings - Total cash and short-term investments
+lvl1_C016,State; Total cash and investment holdings - Total cash and short-term investments
+lvl2b_C016,Local - Amount; Total cash and investment holdings - Total cash and short-term investments
+lvl2a_C016,Local - CV; Total cash and investment holdings - Total cash and short-term investments
+lvl0a_C017,State and Local - Amount; Total cash and investment holdings - Total cash and short-term investments - Cash and demand deposits
+lvl0b_C017,State and Local - CV; Total cash and investment holdings - Total cash and short-term investments - Cash and demand deposits
+lvl1_C017,State; Total cash and investment holdings - Total cash and short-term investments - Cash and demand deposits
+lvl2b_C017,Local - Amount; Total cash and investment holdings - Total cash and short-term investments - Cash and demand deposits
+lvl2a_C017,Local - CV; Total cash and investment holdings - Total cash and short-term investments - Cash and demand deposits
+lvl0a_C018,"State and Local - Amount; Total cash and investment holdings - Total cash and short-term investments - Time, savings deposits and nonfederal short-term investments"
+lvl0b_C018,"State and Local - CV; Total cash and investment holdings - Total cash and short-term investments - Time, savings deposits and nonfederal short-term investments"
+lvl1_C018,"State; Total cash and investment holdings - Total cash and short-term investments - Time, savings deposits and nonfederal short-term investments"
+lvl2b_C018,"Local - Amount; Total cash and investment holdings - Total cash and short-term investments - Time, savings deposits and nonfederal short-term investments"
+lvl2a_C018,"Local - CV; Total cash and investment holdings - Total cash and short-term investments - Time, savings deposits and nonfederal short-term investments"
+lvl0a_C019,State and Local - Amount; Total cash and investment holdings - Total securities
+lvl0b_C019,State and Local - CV; Total cash and investment holdings - Total securities
+lvl1_C019,State; Total cash and investment holdings - Total securities
+lvl2b_C019,Local - Amount; Total cash and investment holdings - Total securities
+lvl2a_C019,Local - CV; Total cash and investment holdings - Total securities
+lvl0a_C020,State and Local - Amount; Total cash and investment holdings - Total securities - Governmental securities
+lvl0b_C020,State and Local - CV; Total cash and investment holdings - Total securities - Governmental securities
+lvl1_C020,State; Total cash and investment holdings - Total securities - Governmental securities
+lvl2b_C020,Local - Amount; Total cash and investment holdings - Total securities - Governmental securities
+lvl2a_C020,Local - CV; Total cash and investment holdings - Total securities - Governmental securities
+lvl0a_C021,State and Local - Amount; Total cash and investment holdings - Total securities - Governmental securities - Federal government
+lvl0b_C021,State and Local - CV; Total cash and investment holdings - Total securities - Governmental securities - Federal government
+lvl1_C021,State; Total cash and investment holdings - Total securities - Governmental securities - Federal government
+lvl2b_C021,Local - Amount; Total cash and investment holdings - Total securities - Governmental securities - Federal government
+lvl2a_C021,Local - CV; Total cash and investment holdings - Total securities - Governmental securities - Federal government
+lvl0a_C022,State and Local - Amount; Total cash and investment holdings - Total securities - Governmental securities - Federal government - U.S. Treasury
+lvl0b_C022,State and Local - CV; Total cash and investment holdings - Total securities - Governmental securities - Federal government - U.S. Treasury
+lvl1_C022,State; Total cash and investment holdings - Total securities - Governmental securities - Federal government - U.S. Treasury
+lvl2b_C022,Local - Amount; Total cash and investment holdings - Total securities - Governmental securities - Federal government - U.S. Treasury
+lvl2a_C022,Local - CV; Total cash and investment holdings - Total securities - Governmental securities - Federal government - U.S. Treasury
+lvl0a_C023,State and Local - Amount; Total cash and investment holdings - Total securities - Governmental securities - Federal government - Federal agency
+lvl0b_C023,State and Local - CV; Total cash and investment holdings - Total securities - Governmental securities - Federal government - Federal agency
+lvl1_C023,State; Total cash and investment holdings - Total securities - Governmental securities - Federal government - Federal agency
+lvl2b_C023,Local - Amount; Total cash and investment holdings - Total securities - Governmental securities - Federal government - Federal agency
+lvl2a_C023,Local - CV; Total cash and investment holdings - Total securities - Governmental securities - Federal government - Federal agency
+lvl0a_C024,State and Local - Amount; Total cash and investment holdings - Total securities - Governmental securities - State and local government
+lvl0b_C024,State and Local - CV; Total cash and investment holdings - Total securities - Governmental securities - State and local government
+lvl1_C024,State; Total cash and investment holdings - Total securities - Governmental securities - State and local government
+lvl2b_C024,Local - Amount; Total cash and investment holdings - Total securities - Governmental securities - State and local government
+lvl2a_C024,Local - CV; Total cash and investment holdings - Total securities - Governmental securities - State and local government
+lvl0a_C025,State and Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities
+lvl0b_C025,State and Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities
+lvl1_C025,State; Total cash and investment holdings - Total securities - Nongovernmental securities
+lvl2b_C025,Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities
+lvl2a_C025,Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities
+lvl0a_C026,State and Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Corporate bonds
+lvl0b_C026,State and Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Corporate bonds
+lvl1_C026,State; Total cash and investment holdings - Total securities - Nongovernmental securities - Corporate bonds
+lvl2b_C026,Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Corporate bonds
+lvl2a_C026,Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Corporate bonds
+lvl0a_C027,State and Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Corporate stocks
+lvl0b_C027,State and Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Corporate stocks
+lvl1_C027,State; Total cash and investment holdings - Total securities - Nongovernmental securities - Corporate stocks
+lvl2b_C027,Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Corporate stocks
+lvl2a_C027,Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Corporate stocks
+lvl0a_C028,State and Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Mortgages
+lvl0b_C028,State and Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Mortgages
+lvl1_C028,State; Total cash and investment holdings - Total securities - Nongovernmental securities - Mortgages
+lvl2b_C028,Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Mortgages
+lvl2a_C028,Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Mortgages
+lvl0a_C029,State and Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Funds held in trust
+lvl0b_C029,State and Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Funds held in trust
+lvl1_C029,State; Total cash and investment holdings - Total securities - Nongovernmental securities - Funds held in trust
+lvl2b_C029,Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Funds held in trust
+lvl2a_C029,Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Funds held in trust
+lvl0a_C030,State and Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Foreign and international securities
+lvl0b_C030,State and Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Foreign and international securities
+lvl1_C030,State; Total cash and investment holdings - Total securities - Nongovernmental securities - Foreign and international securities
+lvl2b_C030,Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Foreign and international securities
+lvl2a_C030,Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Foreign and international securities
+lvl0a_C031,State and Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Other nongovernmental securities
+lvl0b_C031,State and Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Other nongovernmental securities
+lvl1_C031,State; Total cash and investment holdings - Total securities - Nongovernmental securities - Other nongovernmental securities
+lvl2b_C031,Local - Amount; Total cash and investment holdings - Total securities - Nongovernmental securities - Other nongovernmental securities
+lvl2a_C031,Local - CV; Total cash and investment holdings - Total securities - Nongovernmental securities - Other nongovernmental securities
+lvl0a_C032,State and Local - Amount; Total cash and investment holdings - Total other investments
+lvl0b_C032,State and Local - CV; Total cash and investment holdings - Total other investments
+lvl1_C032,State; Total cash and investment holdings - Total other investments
+lvl2b_C032,Local - Amount; Total cash and investment holdings - Total other investments
+lvl2a_C032,Local - CV; Total cash and investment holdings - Total other investments
+lvl0a_C033,State and Local - Amount; Total cash and investment holdings - Total other investments - Real property
+lvl0b_C033,State and Local - CV; Total cash and investment holdings - Total other investments - Real property
+lvl1_C033,State; Total cash and investment holdings - Total other investments - Real property
+lvl2b_C033,Local - Amount; Total cash and investment holdings - Total other investments - Real property
+lvl2a_C033,Local - CV; Total cash and investment holdings - Total other investments - Real property
+lvl0a_C034,State and Local - Amount; Total cash and investment holdings - Total other investments - Miscellaneous investments
+lvl0b_C034,State and Local - CV; Total cash and investment holdings - Total other investments - Miscellaneous investments
+lvl1_C034,State; Total cash and investment holdings - Total other investments - Miscellaneous investments
+lvl2b_C034,Local - Amount; Total cash and investment holdings - Total other investments - Miscellaneous investments
+lvl2a_C034,Local - CV; Total cash and investment holdings - Total other investments - Miscellaneous investments
+lvl0a_C038,State and Local - Amount; Total membership
+lvl0b_C038,State and Local - CV; Total membership
+lvl1_C038,State; Total membership
+lvl2b_C038,Local - Amount; Total membership
+lvl2a_C038,Local - CV; Total membership
+lvl0a_C039,State and Local - Amount; Total membership - Active membership
+lvl0b_C039,State and Local - CV; Total membership - Active membership
+lvl1_C039,State; Total membership - Active membership
+lvl2b_C039,Local - Amount; Total membership - Active membership
+lvl2a_C039,Local - CV; Total membership - Active membership
+lvl0a_C040,State and Local - Amount; Total membership - Inactive membership
+lvl0b_C040,State and Local - CV; Total membership - Inactive membership
+lvl1_C040,State; Total membership - Inactive membership
+lvl2b_C040,Local - Amount; Total membership - Inactive membership
+lvl2a_C040,Local - CV; Total membership - Inactive membership
+lvl0a_C042,State and Local - Amount; Total beneficiaries receiving periodic benefit payments
+lvl0b_C042,State and Local - CV; Total beneficiaries receiving periodic benefit payments
+lvl1_C042,State; Total beneficiaries receiving periodic benefit payments
+lvl2b_C042,Local - Amount; Total beneficiaries receiving periodic benefit payments
+lvl2a_C042,Local - CV; Total beneficiaries receiving periodic benefit payments
+lvl0a_C044,State and Local - Amount; Covered payroll
+lvl0b_C044,State and Local - CV; Covered payroll
+lvl1_C044,State; Covered payroll
+lvl2b_C044,Local - Amount; Covered payroll
+lvl2a_C044,Local - CV; Covered payroll
+lvl0a_C046,State and Local - Amount; Pension Obligations
+lvl0b_C046,State and Local - CV; Pension Obligations
+lvl1_C046,State; Pension Obligations
+lvl2b_C046,Local - Amount; Pension Obligations
+lvl2a_C046,Local - CV; Pension Obligations
