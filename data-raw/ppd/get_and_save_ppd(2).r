@@ -100,28 +100,9 @@ datew <- select(datedfl, ppd_id, fy, variable, date) %>% spread(variable, date)
 # Now put the cleaned up dates into the data
 
 
-df3 <- df2 %>% mutate_each(funs(as.Date(dmy(.))), fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules)
-# which dates did not parse?
-names(df2)
-# get character version of dates
-cdates <- df2 %>% select(ppd_id, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules) %>%
-  mutate(row=row_number()) %>%
-  gather(variable, cdate, -ppd_id, -fy, -row) %>%
-  filter(!is.na(cdate))
-# get date version of dates
-ddates <- df3 %>% select(ppd_id, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules) %>%
-  mutate(row=row_number()) %>%
-  gather(variable, ddate, -ppd_id, -fy, -row) %>%
-  filter(!is.na(ddate))
-comp <- left_join(cdates, ddates) %>% filter(is.na(ddate), cdate!="")
-comp %>% arrange(row, variable)
-# this all looks like bad data and we probably need to delete the records
-count(df2, is.na(ppd_id))
-df2 %>% filter(is.na(ppd_id))
-# judging by the csv file the bad records look related to:
-# 41	Kentucky ERS	near 2001
-# 110	TN State and Teachers	near 2013
-# tell JP, but for now, delete
+df3 <- df2 %>% select(-c(fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules)) %>%
+  left_join(datew)
+
 df4 <- df3 %>% filter(!is.na(ppd_id))
 head(df4)
 
@@ -141,8 +122,8 @@ ppd <- df4 %>% mutate(planf=factor(PlanType, levels=ptlevs, labels=ptlabs),
                       openclosedf=factor(FundingMethCode2_GASB, levels=1:3, labels=c("open", "fixed", "closed")),
                       assetmethf=factor(AssetValMethCode_GASB, levels=1:0, labels=c("market", "smoothed"))
                       )
-comment(ppd) <- ppd.localfn
 
+comment(ppd) <- ppd.localfn
 devtools::use_data(ppd, overwrite=TRUE)
 
 
