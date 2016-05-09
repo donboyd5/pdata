@@ -24,7 +24,9 @@ library("tidyr")
 #****************************************************************************************************
 #                Define directories, filenames, etc. ####
 #****************************************************************************************************
+# latest full links
 # http://publicplansdata.org/wp-content/uploads/2016/04/PPD_PlanLevel.xlsx
+# http://publicplansdata.org/wp-content/uploads/2015/04/Variable-List1.xlsx
 
 ppd.dir <- "./data-raw/ppd/"
 
@@ -75,38 +77,36 @@ devtools::use_data(ppdvars, overwrite=TRUE)
 #                Clean ppd data slightly, then save in package data directory ####
 #****************************************************************************************************
 # read all data as character and then convert; this appears to work better than letting read_csv use its defaults
-ncols <- ncol(read_csv(paste0(ppd.dir, ppd.localfn), n_max=1)) # determine # columns
-df <- read_csv(paste0(ppd.dir, ppd.localfn), col_types=str_dup("c", ncols)) # read ALL columns as character and convert as needed
-df2 <- type_convert(df, col_types = NULL)
+# ncols <- ncol(read_csv(paste0(ppd.dir, ppd.localfn), n_max=10)) # determine # columns
+# df <- read_csv(paste0(ppd.dir, ppd.localfn), col_types=str_dup("c", ncols)) # read ALL columns as character and convert as needed
+# df2 <- type_convert(df, col_types = NULL)
+# glimpse(df2)
+# problems(df2)
+
+ncols <- read_excel(paste0(ppd.dir, ppd.localfn)) %>% ncol(.)
+df <- read_excel(paste0(ppd.dir, ppd.localfn), col_types=rep("text", ncols))
+# clean date vars
+dv2 <- df %>% select(ppd_id, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts)
+dv3 <- dv2 %>% mutate_each(funs(as.Date(as.numeric(.), origin="1900-01-01")), fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules) %>%
+  mutate(ActValDate_ActuarialCosts=as.Date(mdy(ActValDate_ActuarialCosts)))
+df2 <- left_join(df %>% select(-c(fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts)),
+                 dv3)
 glimpse(df2)
-problems(df2)
 
-ncols <- ncol(read_excel(paste0(ppd.dir, ppd.localfn))) # determine # columns
-df <- read_excel(paste0(ppd.dir, ppd.localfn), col_types=rep("text", ncols)) # read ALL columns as character and convert as needed
-df2 <- type_convert(df, col_types = NULL)
-glimpse(df2)
-problems(df2)
+df3 <- type_convert(df2, col_types = NULL)
+glimpse(df3)
+problems(df3)
 
+df3 %>% select(ppd_id, PlanName, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts) %>%
+  gather(datevar, date, -c(ppd_id, PlanName, fy)) %>%
+  filter(year(date)>2016)
 
-# convert all of the date variables
-grep("date", names(df2), ignore.case=TRUE, value=TRUE)
-# str_detect(names(df2), "date")
-datedf <- df2 %>% select(ppd_id, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules)
-datedfl <- datedf %>% gather(variable, value, -ppd_id, -fy) %>%
-  mutate(chardate=grepl("[[:alpha:]]", value),
-         dmyd=as.Date(dmy(ifelse(chardate, value, NA))),
-         mdyd=as.Date(mdy(ifelse(!chardate, value, NA))),
-         date=as.Date(ifelse(chardate, dmyd, mdyd), origin="1970-01-01"))
-datew <- select(datedfl, ppd_id, fy, variable, date) %>% spread(variable, date)
+df3 %>% select(ppd_id, PlanName, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts) %>% glimpse
 
-# Now put the cleaned up dates into the data
+# Fix any obvious errors
+df4 <- df3
+df4$ActValDate_GASBAssumptions[year(df4$ActValDate_GASBAssumptions)==2019 & !is.na(df4$ActValDate_GASBAssumptions)] <- as.Date("2009-01-03")
 
-
-df3 <- df2 %>% select(-c(fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules)) %>%
-  left_join(datew)
-
-df4 <- df3 %>% filter(!is.na(ppd_id))
-head(df4)
 
 # Now create a few useful factors
 # Classifiers:
