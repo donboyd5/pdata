@@ -83,16 +83,24 @@ devtools::use_data(ppdvars, overwrite=TRUE)
 # glimpse(df2)
 # problems(df2)
 
+ppd.localfn <- "2016-05-09_PPD_PlanLevel.xlsx"
+# tmp <- read_excel(paste0(ppd.dir, ppd.localfn))
+# tmp %>% mutate(month=month(fye)) %>% count(month)
+# d <- 42185 # 6/30/2015
+# as.Date(d, origin="1899-12-30") # NOT 1900-01-01 !!
+
 ncols <- read_excel(paste0(ppd.dir, ppd.localfn)) %>% ncol(.)
 df <- read_excel(paste0(ppd.dir, ppd.localfn), col_types=rep("text", ncols))
+
 # clean date vars
 dv2 <- df %>% select(ppd_id, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts)
-dv3 <- dv2 %>% mutate_each(funs(as.Date(as.numeric(.), origin="1900-01-01")), fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules) %>%
+dv3 <- dv2 %>% mutate_each(funs(as.Date(as.numeric(.), origin="1899-12-30")), fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules) %>%
   mutate(ActValDate_ActuarialCosts=as.Date(mdy(ActValDate_ActuarialCosts)))
+count(dv3, fy, fye)
+
 df2 <- left_join(df %>% select(-c(fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts)),
                  dv3)
 glimpse(df2)
-
 df3 <- type_convert(df2, col_types = NULL)
 glimpse(df3)
 problems(df3)
@@ -104,8 +112,13 @@ df3 %>% select(ppd_id, PlanName, fy, fye, ActRptDate, ActValDate_GASBAssumptions
 df3 %>% select(ppd_id, PlanName, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts) %>% glimpse
 
 # Fix any obvious errors
-df4 <- df3
-df4$ActValDate_GASBAssumptions[year(df4$ActValDate_GASBAssumptions)==2019 & !is.na(df4$ActValDate_GASBAssumptions)] <- as.Date("2009-01-03")
+safe.ifelse <- function(cond, yes, no) {structure(ifelse(cond, yes, no), class = class(yes))} # so dates don't lose their class!
+df4 <- df3 %>% mutate(ActValDate_GASBAssumptions=safe.ifelse(ActValDate_GASBAssumptions=="2019-01-01", as.Date("2009-01-01"), ActValDate_GASBAssumptions))
+glimpse(df4)
+df4 %>% filter(ppd_id==156) %>% select(ppd_id, PlanName, fy, ActValDate_GASBAssumptions)
+
+# df4 <- df3
+# df4$ActValDate_GASBAssumptions[year(df4$ActValDate_GASBAssumptions)==2019 & !is.na(df4$ActValDate_GASBAssumptions)] <- as.Date("2009-01-03")
 
 
 # Now create a few useful factors
