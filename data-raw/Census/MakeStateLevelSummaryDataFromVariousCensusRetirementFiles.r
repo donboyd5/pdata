@@ -343,10 +343,105 @@ ssdf2$ItemName[ssdf2$ItemName=="Other Securities"] <- "Other Nongovernmental Sec
 
 saveRDS(ssdf2, paste0(cendir, "statesummary2004to2011.rds"))
 
+#************************************************************************************************************************
+#                2012+ NEW ASPPP: Get and clean state ASPP summary data ####
+#************************************************************************************************************************
+# create statesummary2012plus_ASPP.rds
+# These new data appeared on the Census site ~ June 2016 and may be an alternative to the
+# American Fact Finder version of the 2012+ data
+# ASPP_data_2012plus
+# format: year int, stabbr chr, admin int, adminf chr, variable, value
+# variable: actives, assets, beneficiaries, benefits, eec, erc, erc.lg, erc.sg,
+#   inactives, invinc, members, nsystems, payroll, totexpend
+# admin: 1, 2, 3; adminf: State-local, State, Local
+asppdir <- paste0(censs, "ASPP_data_2012plus/")
+
+asppxw <- read_excel(paste0(asppdir, "aspp_varxwalk.xlsx")) %>%
+  gather(year, vartext, -vname) %>%
+  mutate(year=as.integer(str_sub(year, 5, -1))) %>%
+  filter(!is.na(vname))
+
+# we have to do a LOT of year-specific handling
+getASPP_2012 <- function(yr) {
+  fn <- paste0(yr, "ASPPSummary.xlsx")
+  tmp <- read_excel(paste0(asppdir, fn))
+  # In 2012 there are 3 columns for each state: state-local, state, local
+  stnames <- names(tmp)[-1]
+  stvals <- seq(1, 154, 3)
+  stnames[stvals]
+  stnames[stvals+1] <- stnames[stvals]
+  stnames[stvals+2] <- stnames[stvals]
+  stabs <- stcodes$stabbr[match(stnames, stcodes$stname)] %>% as.character
+  tmp2 <- tmp %>% setNames(c("vartext", paste0(stabs, "_", c(1:3)))) %>%
+    gather(stabbadmin, value, -vartext) %>%
+    separate(stabbadmin, c("stabbr", "admin")) %>%
+    mutate(year=yr,
+           admin=as.integer(admin),
+           value=as.numeric(value)) %>%
+    filter(!is.na(value)) %>%
+    right_join(asppxw) %>%
+    mutate(value=ifelse(value==0 & vname %in% c("payroll", "penob"), NA, value)) %>%
+    filter(!is.na(value))
+  return(tmp2)
+}
+# getASPP_2012(2012)
+
+getASPP_2013_plus <- function(yr) {
+  fn <- paste0(yr, "ASPPSummary.xlsx")
+  tmp <- read_excel(paste0(asppdir, fn))
+  # in 2013+ there are 6 columns, State & Local, CV for State & Local, State, CV for State, Local,	CV Local
+  # in 2013, US name appears with 7 columns, so we have to shift all names up!
+  # in 2014, United States is missing in col 2
+  # 2015 looks good
+  # fix names before manipulation
+  if(yr==2013) {
+    vnames <- names(tmp)
+    vnames[8:(length(vnames)-1)] <- vnames[9:length(vnames)]
+    names(tmp) <- vnames
+  } else if(yr==2014) {
+    names(tmp)[2] <- "United States"
+  }
+  stnames <- names(tmp)[-1]
+  stvals <- seq(1, 307, 6)
+  # stnames[stvals]
+  for(i in 1:5) stnames[stvals+i] <- stnames[stvals]
+  stabs <- stcodes$stabbr[match(stnames, stcodes$stname)] %>% as.character
+  tmp2 <- tmp %>% setNames(c("vartext", paste0(stabs, "_", c(1, 19, 2, 29, 3, 39)))) %>%
+    gather(stabbadmin, value, -vartext) %>%
+    separate(stabbadmin, c("stabbr", "admin")) %>%
+    mutate(year=yr,
+           admin=as.integer(admin),
+           value=as.numeric(value)) %>%
+    filter(admin %in% 1:3, !is.na(value)) %>%
+    right_join(asppxw) %>%
+    mutate(value=ifelse(value==0 & vname %in% c("payroll", "penob"), NA, value)) %>%
+    filter(!is.na(value))
+  return(tmp2)
+}
+
+getASPP <- function(yr) {
+  if(yr==2012) df <- getASPP_2012(yr) else
+    df <- getASPP_2013_plus(yr)
+  return(df)
+}
+
+getASPP(2015)
+
+df <- ldply(2012:2015, getASPP) %>% select(stabbr, year, admin, vname, value)
+count(df, year)
+count(df, stabbr)
+count(df, admin)
+count(df, vname)
+glimpse(df)
+
+
+saveRDS(df, paste0(cendir, "statesummary2012plus_ASPP.rds"))
+
+
 
 
 #************************************************************************************************************************
-#                2012+: Get and clean state summary data ####
+#                OLD 2012+: Get and clean state AFF summary data ####
 #************************************************************************************************************************
 # first get the data, then the metadata
 # get the data
@@ -416,16 +511,18 @@ saveRDS(select(df, -variable), paste0(cendir, "statesummary2012plus.rds"))
 df1 <- readRDS(paste0(cendir, "statesummaryhist.rds"))
 df2 <- readRDS(paste0(cendir, "statesummary1993to2003.rds"))
 df3 <- readRDS(paste0(cendir, "statesummary2004to2011.rds"))
-df4 <- readRDS(paste0(cendir, "statesummary2012plus.rds"))
+# df4 <- readRDS(paste0(cendir, "statesummary2012plus.rds"))
+df5 <- readRDS(paste0(cendir, "statesummary2012plus_ASPP.rds"))
 
 glimpse(df1)
 glimpse(df2)
 glimpse(df3)
 glimpse(df4)
+glimpse(df5)
 count(df1, variable)
 count(df2, variable)
 count(df3, ItemID, ItemName)
-tmp <- count(df4, col, description)
+# old tmp <- count(df4, col, description)
 
 
 # variable, variable, ItemID, col -are the "native" variables for df1-df4 respectively
@@ -506,7 +603,7 @@ xwalk
 df1xw <- select(filter(xwalk, file=="df1"), uvname, fvalue)
 df2xw <- select(filter(xwalk, file=="df2"), uvname, fvalue)
 df3xw <- select(filter(xwalk, file=="df3"), uvname, fvalue)
-df4xw <- select(filter(xwalk, file=="df4"), uvname, fvalue)
+# df4xw <- select(filter(xwalk, file=="df4"), uvname, fvalue)
 
 # focus on getting adminf right for each file, and creating admin from it
 
@@ -517,40 +614,41 @@ count(df1, admin)
 df1a <- df1 %>% filter(year<1993, admin %in% 1:3) %>%
   mutate(uvname=df1xw$uvname[match(variable, df1xw$fvalue)]) %>% # get the uniform variable name
   filter(!is.na(uvname)) %>%
-  mutate(adminf=as.character(factor(admin, levels=1:3, labels=c("State-local", "State", "Local")))) %>%
-  select(year, stabbr, adminf, uvname, value)
+  select(year, stabbr, admin, uvname, value)
 
+#  mutate(adminf=as.character(factor(admin, levels=1:3, labels=c("State-local", "State", "Local")))) %>%
 
 glimpse(df2)
 count(df2, variable)
 count(df2, year)
 count(df2, admin)
-df2a <- df2 %>% filter(admin %in% c("Total", "State", "Local")) %>%
+df2a <- df2 %>% rename(adminf=admin) %>%
+  filter(adminf %in% c("Total", "State", "Local")) %>%
   mutate(uvname=df2xw$uvname[match(variable, df2xw$fvalue)]) %>% # get the uniform variable name
   filter(!is.na(uvname)) %>%
-  mutate(adminf=ifelse(admin=="Total", "State-local", admin)) %>%
-  select(year, stabbr, adminf, uvname, value)
+  mutate(admin=as.integer(factor(adminf, levels=c("Total", "State", "Local"), labels=1:3))) %>%
+  select(year, stabbr, admin, uvname, value)
 
 
 glimpse(df3)
 count(df3, year)
 count(df3, type)
 count(df3, ItemID, ItemName)
-df3a <- df3 %>% filter(type %in% 1:3) %>%
+df3a <- df3 %>% rename(admin=type) %>%
+  filter(admin %in% 1:3) %>%
   mutate(uvname=df3xw$uvname[match(ItemID, df3xw$fvalue)]) %>% # get the uniform variable name
   filter(!is.na(uvname)) %>%
-  mutate(adminf=as.character(factor(type, levels=1:3, labels=c("State-local", "State", "Local")))) %>%
-  select(year, stabbr, adminf, uvname, value)
+  select(year, stabbr, admin, uvname, value)
 
 
-glimpse(df4)
-count(df4, admin)
-tmp <- count(df4, col, description)
-df4a <- df4 %>%
-  mutate(uvname=df4xw$uvname[match(col, df4xw$fvalue)]) %>% # get the uniform variable name
-  filter(!is.na(uvname)) %>%
-  mutate(adminf=ifelse(admin=="Total", "State-local", admin)) %>%
-  select(year, stabbr, adminf, uvname, value)
+# glimpse(df4)
+# count(df4, admin)
+# tmp <- count(df4, col, description)
+# df4a <- df4 %>%
+#   mutate(uvname=df4xw$uvname[match(col, df4xw$fvalue)]) %>% # get the uniform variable name
+#   filter(!is.na(uvname)) %>%
+#   mutate(adminf=ifelse(admin=="Total", "State-local", admin)) %>%
+#   select(year, stabbr, adminf, uvname, value)
 
 
 # Now put the 4 files together year, admin, stabbr, uvname, value
@@ -558,12 +656,13 @@ glimpse(df1a)
 glimpse(df2a)
 glimpse(df3a)
 glimpse(df4a)
+glimpse(df5)
 count(df1a, year); count(df2a, year); count(df3a, year); count(df4a, year)
 
-dfall <- bind_rows(df1a, df2a, df3a, df4a) %>%
+dfall <- bind_rows(df1a, df2a, df3a, rename(df5, uvname=vname)) %>%
   rename(variable=uvname) %>%
   mutate(year=as.integer(year),
-         admin=as.integer(factor(adminf, levels=c("State-local", "State", "Local"), labels=1:3))) %>%
+         adminf=as.character(factor(admin, levels=1:3, labels=c("State-local", "State", "Local")))) %>%
   select(year, stabbr, admin, adminf, variable, value) %>%
   arrange(stabbr, admin, adminf, variable, year)
 glimpse(dfall)
