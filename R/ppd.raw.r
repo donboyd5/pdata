@@ -1,4 +1,4 @@
-#' Public plans database.
+#' Public plans database - raw version.
 #'
 #' Information on 150 large public pension plans, annual, 2001-2015.
 #'
@@ -9,6 +9,6 @@
 #' @format Data frame with 1 row per plan per year, with more than 200 variables. See ppdvars for documentation on variables.
 #' @examples
 #' library(dplyr)
-#' glimpse(ppd)
-"ppd"
+#' glimpse(ppd.raw)
+"ppd.raw"
 

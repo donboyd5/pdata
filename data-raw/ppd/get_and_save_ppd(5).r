@@ -9,6 +9,8 @@
 #                Load packages ####
 #****************************************************************************************************
 
+library("devtools")
+
 library("magrittr")
 library("plyr") # needed for ldply; must be loaded BEFORE dplyr
 library("tidyverse")
@@ -40,36 +42,17 @@ safe.ifelse <- function(cond, yes, no) {structure(ifelse(cond, yes, no), class =
 #****************************************************************************************************
 # parent directory for PPD data:
 #   http://publicplansdata.org/public-plans-database/download-full-data-set/
-# Detailed documentation is at:
+
+# Detailed interactive documentation is at:
 #   http://publicplansdata.org/public-plans-database/documentation/
-
-
-# The latest data APPEAR to be at:
-#   http://publicplansdata.org/wp-content/uploads/2016/04/PPD_PlanLevel.xlsx
-# There are also data at:
-#   http://publicplansdata.org/wp-content/uploads/2015/04/PPD_PlanLevelData.csv
-# presumably, based on directory name, these are older.
-
-
-
-# latest full links
-# http://publicplansdata.org/wp-content/uploads/2016/04/PPD_PlanLevel.xlsx
-# http://publicplansdata.org/wp-content/uploads/2015/04/Variable-List1.xlsx
 
 ppd.dir <- "./data-raw/ppd/"
 
-# ppd.webdir <- "http://publicplansdata.org/wp-content/uploads/2015/04/"
-# ppd.webfn <- "PPD_PlanLevelData.csv"
-
-# ppd.webdir <- "http://publicplansdata.org/wp-content/uploads/2016/02/"
-# ppd.webfn <- "PPD_PlanLevelData.xlsx"
-
-ppd.webdir <- "http://publicplansdata.org/wp-content/uploads/2016/04/"
+ppd.webdir <- "http://publicplansdata.org/wp-content/uploads/2016/12/"
 ppd.webfn <- "PPD_PlanLevel.xlsx"
 
 vlist.webdir <- "http://publicplansdata.org/wp-content/uploads/2015/04/"
 vlist.webfn <- "Variable-List1.xlsx"
-
 
 ppd.u <- paste0(ppd.webdir, ppd.webfn)
 vlist.u <- paste0(vlist.webdir, vlist.webfn)
@@ -80,6 +63,14 @@ downloaddate <- format(Sys.time(), '%Y-%m-%d')
 # local filenames
 ppd.localfn <- paste0(downloaddate, "_", ppd.webfn)
 vlist.localfn <- paste0(downloaddate, "_", vlist.webfn)
+
+## Older links
+# ppd.webdir <- "http://publicplansdata.org/wp-content/uploads/2015/04/"
+# ppd.webfn <- "PPD_PlanLevelData.csv"
+
+# ppd.webdir <- "http://publicplansdata.org/wp-content/uploads/2016/02/"
+# ppd.webfn <- "PPD_PlanLevelData.xlsx"
+
 
 
 #****************************************************************************************************
@@ -102,7 +93,7 @@ devtools::use_data(ppdvars, overwrite=TRUE)
 
 
 #****************************************************************************************************
-#                Clean ppd data slightly, then save in package data directory ####
+#                Get raw ppd data and save in package data directory ####
 #****************************************************************************************************
 # read all data as character and then convert; this appears to work better than letting read_csv use its defaults
 # ncols <- ncol(read_csv(paste0(ppd.dir, ppd.localfn), n_max=10)) # determine # columns
@@ -117,47 +108,114 @@ devtools::use_data(ppdvars, overwrite=TRUE)
 # d <- 42185 # 6/30/2015
 # as.Date(d, origin="1899-12-30") # NOT 1900-01-01 !!
 
+# read all as character, just to be safe
 ncols <- read_excel(paste0(ppd.dir, ppd.localfn)) %>% ncol(.)
 df <- read_excel(paste0(ppd.dir, ppd.localfn), col_types=rep("text", ncols))
+glimpse(df)
+
+vlook <- function(vname, df) df %>% .[[vname]] %>% unique
+
+# take a first cut at col types using type_convert from readr
+df2 <- type_convert(df)
+# cols_condense(df2)
+# spec(df2)
+# cols_condense(spec(df2))
+# df2 <- type_convert(df, col_types=(cols(.default = col_double())))
+glimpse(df2)
+
+# now reset types (pulling values from original df) where type_convert results aren't what we want
+# reset all date variables as character because they need to be inspected and converted
+datevars <- str_subset(names(df), coll("date", ignore_case = TRUE))
+datevars
+datevars <- c("fye", datevars)
+datevars
+
+# look for integers that should be doubles
+glimpse(df2 %>% select_if(is.integer))
+dblvars <- c("ActLiabilities_other", "expense_PrivateEquity")
+# note that the membership data are integers; leave that way for now
+
+# now replace and convert as needed
+df3 <- df2
+replacevars <- c(datevars, dblvars)
+df3[, replacevars] <- df[, replacevars]
+glimpse(df3)
+
+df4 <- df3 %>% mutate_at(vars(one_of(dblvars)), funs(as.double))
+glimpse(df4)
+glimpse(df4[, dblvars])
+
+# VERIFY that the ORDER of df and df4 are the same, as replacement relied on that assumption
+o1 <- df %>% select(ppd_id, fy)
+o2 <- df4 %>% select(ppd_id, fy) %>% mutate_all(as.character)
+all.equal(o1, o2)
+
+ppd.raw <- df4
+
+comment(ppd.raw) <- ppd.localfn
+devtools::use_data(ppd.raw, overwrite=TRUE)
+
+
+
+#****************************************************************************************************
+#                Clean ppd data slightly and save in package data directory ####
+#****************************************************************************************************
+load("./data/ppd.raw.rda")
+glimpse(ppd.raw)
+
+datevars <- c("fye", str_subset(names(ppd.raw), coll("date", ignore_case = TRUE)))
+datevars
+
+# tmp <- df %>% select(ppd_id, fy, one_of(datevars))
 
 # clean date vars
-dv2 <- df %>% select(ppd_id, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts)
-dv3 <- dv2 %>% mutate_each(funs(as.Date(as.numeric(.), origin="1899-12-30")), fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules) %>%
-  mutate(ActValDate_ActuarialCosts=as.Date(mdy(ActValDate_ActuarialCosts)))
-count(dv3, fy, fye)
+dv2 <- ppd.raw %>% select(ppd_id, fy, one_of(datevars))
+# because the date variables were in Excel they are a real mix of formats
+mdyfmt <- "ActValDate_ActuarialCosts"
+xlfmt <- setdiff(datevars, mdyfmt)
 
-df2 <- left_join(df %>% select(-c(fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts)),
-                 dv3)
-glimpse(df2)
-df3 <- type_convert(df2, col_types = NULL)
-glimpse(df3)
-problems(df3)
 
+dv3 <- dv2 %>% mutate_at(vars(one_of(xlfmt)), funs(as.numeric(.) %>% as.Date(origin="1899-12-30"))) %>%
+  mutate_at(vars(one_of(mdyfmt)), funs(mdy(.) %>% as.Date()))
+
+# find the one that didn't parse
+comp <- dv2 %>% select(ppd_id, fy, ActValDate_ActuarialCosts.c=ActValDate_ActuarialCosts) %>%
+  filter(!is.na(ActValDate_ActuarialCosts.c)) %>%
+  left_join(dv3 %>% select(ppd_id, fy, ActValDate_ActuarialCosts)) %>%
+  filter(is.na(ActValDate_ActuarialCosts))
+# good - was N/A in original
+
+df2 <- ppd.raw
+df2[, datevars] <- dv3[, datevars]
+
+# again, verify that order is same as we count on that
+o1 <- ppd.raw %>% select(ppd_id, fy)
+o2 <- df2 %>% select(ppd_id, fy)
+all.equal(o1, o2)
+# good
+
+# now look for bad data
 # any bad dates?
-df3 %>% select(ppd_id, PlanName, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts) %>% summary
-baddates <- df3 %>% select(ppd_id, PlanName, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts) %>%
-  gather(datevar, date, -c(ppd_id, PlanName, fy)) %>%
-  filter(year(date)>2016 | year(date)<2000)
-baddates
+df2 %>% select(ppd_id, PlanName, fy, one_of(datevars)) %>% summary
+# no obvious problems
 
-df3 %>% select(ppd_id, PlanName, fy, fye, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts) %>% glimpse
+names(df2)
+str_subset(names(df2), coll("asset", ignore_case=TRUE))
+vars <- c("ActFundedRatio_GASB", "MktAssets_net", "MktAssets_ActRpt")
 
-# Fix any obvious errors
-df4 <- df3 %>%
-  mutate(ActValDate_GASBAssumptions=safe.ifelse(ActValDate_GASBAssumptions=="2019-01-01",
-                                                as.Date("2009-01-01"),
-                                                ActValDate_GASBAssumptions)) %>%
-  mutate(ActValDate_ActuarialCosts=safe.ifelse((ppd_id==161) & year(ActValDate_ActuarialCosts)==1905,
-                                               as.Date(ymd(paste(fy, month(ActValDate_ActuarialCosts), day(ActValDate_ActuarialCosts)))),
-                                               ActValDate_ActuarialCosts))
-glimpse(df4)
-baddates %>% select(ppd_id, fy) %>%
-  left_join(df4) %>%
-  select(ppd_id, PlanName, fy, ActRptDate, ActValDate_GASBAssumptions, ActValDate_GASBSchedules, ActValDate_ActuarialCosts)
+f <- function(vars) {
+  out <- df2 %>% select(fy, ppd_id, PlanName, one_of(vars)) %>%
+    gather(variable, value, -fy, -ppd_id, -PlanName) %>%
+    group_by(variable, fy) %>%
+    do(qtiledf(.$value))
+  return(out)
+}
+f("ActFundedRatio_GASB")
+f("MktAssets_net")
+f("MktAssets_ActRpt")
 
-
-# df4 <- df3
-# df4$ActValDate_GASBAssumptions[year(df4$ActValDate_GASBAssumptions)==2019 & !is.na(df4$ActValDate_GASBAssumptions)] <- as.Date("2009-01-03")
+# apply any fixes
+df3 <- df2
 
 
 # Now create a few useful factors
@@ -170,14 +228,11 @@ ptlabs <- c("General-S&L", "Teachers", "Safety", "General-State", "General-Local
 adlevs <- c(0, 1, 2, 5)
 adlabs <- c("State", "County", "City", "School")
 
-ppd <- df4 %>% mutate(planf=factor(PlanType, levels=ptlevs, labels=ptlabs),
+ppd <- df3 %>% mutate(planf=factor(PlanType, levels=ptlevs, labels=ptlabs),
                       adminf=factor(AdministeringGovt, levels=adlevs, labels=adlabs),
                       pctdollf=factor(FundingMethCode1_GASB, levels=c(1, 0, NA), labels=c("levpercent", "levdollar")),
                       openclosedf=factor(FundingMethCode2_GASB, levels=1:3, labels=c("open", "fixed", "closed")),
-                      assetmethf=factor(AssetValMethCode_GASB, levels=1:0, labels=c("market", "smoothed"))
-                      )
+                      assetmethf=factor(AssetValMethCode_GASB, levels=1:0, labels=c("market", "smoothed")))
 
-comment(ppd) <- ppd.localfn
+comment(ppd) <- comment(ppd.raw)
 devtools::use_data(ppd, overwrite=TRUE)
-
-
