@@ -29,4 +29,3 @@ library(dplyr)
 glimpse(statepen.bea)
 }
 \keyword{datasets}
-

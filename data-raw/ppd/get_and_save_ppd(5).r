@@ -46,9 +46,12 @@ safe.ifelse <- function(cond, yes, no) {structure(ifelse(cond, yes, no), class =
 # Detailed interactive documentation is at:
 #   http://publicplansdata.org/public-plans-database/documentation/
 
+# full file name:
+# http://publicplansdata.org/wp-content/uploads/2016/12/PPD_PlanLevel.xlsx
+
 ppd.dir <- "./data-raw/ppd/"
 
-ppd.webdir <- "http://publicplansdata.org/wp-content/uploads/2016/12/"
+ppd.webdir <- "http://publicplansdata.org/wp-content/uploads/2016/12/" # cannot access directly
 ppd.webfn <- "PPD_PlanLevel.xlsx"
 
 vlist.webdir <- "http://publicplansdata.org/wp-content/uploads/2015/04/"
@@ -178,12 +181,16 @@ xlfmt <- setdiff(datevars, mdyfmt)
 dv3 <- dv2 %>% mutate_at(vars(one_of(xlfmt)), funs(as.numeric(.) %>% as.Date(origin="1899-12-30"))) %>%
   mutate_at(vars(one_of(mdyfmt)), funs(mdy(.) %>% as.Date()))
 
-# find the one that didn't parse
+# find the one3 that didn't parse
 comp <- dv2 %>% select(ppd_id, fy, ActValDate_ActuarialCosts.c=ActValDate_ActuarialCosts) %>%
   filter(!is.na(ActValDate_ActuarialCosts.c)) %>%
   left_join(dv3 %>% select(ppd_id, fy, ActValDate_ActuarialCosts)) %>%
   filter(is.na(ActValDate_ActuarialCosts))
-# good - was N/A in original
+# ppd_id    fy ActValDate_ActuarialCosts.c ActValDate_ActuarialCosts
+# <int> <int>                       <chr>                    <date>
+#   1     25  2004                         N/A                        NA
+# 2    165  2015                      SH(cm)                        NA
+# good - were bad in original
 
 df2 <- ppd.raw
 df2[, datevars] <- dv3[, datevars]

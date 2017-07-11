@@ -21,4 +21,3 @@ Metadata for the Public Plans Database.
   ppdvars
 }
 \keyword{datasets}
-
