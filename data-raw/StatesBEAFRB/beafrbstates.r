@@ -51,10 +51,10 @@ statepen.frb <- df.frb %>% setNames(vnames) %>%
   mutate(vdesc=vdesc[match(vname, vnames)]) %>%
   select(stabbr, vname, vdesc, year, value)
 glimpse(statepen.frb)
-count(statepen.frb, stname, stabbr)
+count(statepen.frb, stabbr)
 count(statepen.frb, vname, vdesc)
 
-cmt <- "FRB Enhanced Accounts State Pension Tables, $ Millions, downloaded 2016-11-11. See package documentation for discount rates."
+cmt <- "FRB Enhanced Accounts State Pension Tables, $ Millions, downloaded 2017-07-15. See package documentation for discount rates."
 comment(statepen.frb) <- cmt
 devtools::use_data(statepen.frb, overwrite=TRUE)
 
