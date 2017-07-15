@@ -1,6 +1,6 @@
 # MakeStateLevelSummaryDataFromVariousCensusRetirementFiles.r
 # Don Boyd
-# 10/3/2015
+# 07/15/2017
 
 # This program creates state-level summary data on retirement systems using Census data, for as many years as possible.
 # While I had wanted to build state summaries from details for individual systems, several years have imputations for
@@ -356,6 +356,7 @@ saveRDS(ssdf2, paste0(cendir, "statesummary2004to2011.rds"))
 # admin: 1, 2, 3; adminf: State-local, State, Local
 asppdir <- paste0(censs, "ASPP_data_2012plus/")
 
+#..UPDATE this crosswalk with each new data year!!!! ----
 asppxw <- read_excel(paste0(asppdir, "aspp_varxwalk.xlsx")) %>%
   gather(year, vartext, -vname) %>%
   mutate(year=as.integer(str_sub(year, 5, -1))) %>%
@@ -385,6 +386,7 @@ getASPP_2012 <- function(yr) {
   return(tmp2)
 }
 # getASPP_2012(2012)
+# yr <- 2016
 
 getASPP_2013_plus <- function(yr) {
   fn <- paste0(yr, "ASPPSummary.xlsx")
@@ -427,7 +429,7 @@ getASPP <- function(yr) {
 
 getASPP(2015)
 
-df <- ldply(2012:2015, getASPP) %>% select(stabbr, year, admin, vname, value)
+df <- ldply(2012:2016, getASPP) %>% select(stabbr, year, admin, vname, value)
 count(df, year)
 count(df, stabbr)
 count(df, admin)
@@ -517,7 +519,7 @@ df5 <- readRDS(paste0(cendir, "statesummary2012plus_ASPP.rds"))
 glimpse(df1)
 glimpse(df2)
 glimpse(df3)
-glimpse(df4)
+# glimpse(df4)
 glimpse(df5)
 count(df1, variable)
 count(df2, variable)
@@ -528,81 +530,81 @@ count(df3, ItemID, ItemName)
 # variable, variable, ItemID, col -are the "native" variables for df1-df4 respectively
 # not all files have total contributions (erc + eec), so calculate that
 # don't bother with total revenue (contrib + invinc) - can calc if needed
-xwalk.s <- "uvname, file, fvalue
-nsystems, df1, systems
-nsystems, df2, nsystems
-nsystems, df3, 32
-nsystems, df4, C036
 
-members, df1, totmemb
-members, df2, totmem
-members, df3, 28
-members, df4, C038
+xwalk <- read_csv(
+  "uvname, file, fvalue
+  nsystems, df1, systems
+  nsystems, df2, nsystems
+  nsystems, df3, 32
+  nsystems, df4, C036
 
-actives, df1, active
-actives, df2, actives
-actives, df3, 29
-actives, df4, C039
+  members, df1, totmemb
+  members, df2, totmem
+  members, df3, 28
+  members, df4, C038
 
-inactives, df1, inactive
-inactives, df2, inactives
-inactives, df3, 30
-inactives, df4, C040
+  actives, df1, active
+  actives, df2, actives
+  actives, df3, 29
+  actives, df4, C039
 
-beneficiaries, df1, totbenef
-beneficiaries, df2, beneficiaries
-beneficiaries, df3, 31
-beneficiaries, df4, C042
+  inactives, df1, inactive
+  inactives, df2, inactives
+  inactives, df3, 30
+  inactives, df4, C040
 
-payroll, df4, C044
+  beneficiaries, df1, totbenef
+  beneficiaries, df2, beneficiaries
+  beneficiaries, df3, 31
+  beneficiaries, df4, C042
 
-eec, df1, totempcontrb
-eec, df2, eec
-eec, df3, 2
-eec, df4, C003
+  payroll, df4, C044
 
-erc, df1, totgovcontrb
-erc, df2, erc
-erc, df3, 3
-erc, df4, C004
+  eec, df1, totempcontrb
+  eec, df2, eec
+  eec, df3, 2
+  eec, df4, C003
 
-erc.sg, df1, contrbstate
-erc.sg, df2, erc.sg
-erc.sg, df3, 4
-erc.sg, df4, C005
+  erc, df1, totgovcontrb
+  erc, df2, erc
+  erc, df3, 3
+  erc, df4, C004
 
-erc.lg, df1, contrblocal
-erc.lg, df2, erc.lg
-erc.lg, df3, 5
-erc.lg, df4, C006
+  erc.sg, df1, contrbstate
+  erc.sg, df2, erc.sg
+  erc.sg, df3, 4
+  erc.sg, df4, C005
 
-invinc, df1, totalearns
-invinc, df2, invinc
-invinc, df3, 6
-invinc, df4, C008
+  erc.lg, df1, contrblocal
+  erc.lg, df2, erc.lg
+  erc.lg, df3, 5
+  erc.lg, df4, C006
 
-totexpend, df1, toterexp
-totexpend, df2, totpay
-totexpend, df3, 7
-totexpend, df4, C010
+  invinc, df1, totalearns
+  invinc, df2, invinc
+  invinc, df3, 6
+  invinc, df4, C008
 
-benefits, df1, benefits
-benefits, df2, benefits
-benefits, df3, 8
-benefits, df4, C011
+  totexpend, df1, toterexp
+  totexpend, df2, totpay
+  totexpend, df3, 7
+  totexpend, df4, C010
 
-assets, df1, totercashsec
-assets, df2, assets
-assets, df3, 11
-assets, df4, C015
-"
-xwalk <- read_csv(xwalk.s) %>% mutate_each(funs(str_trim))
-names(xwalk) <- str_trim(names(xwalk)) # just in case spaces crept into the names
+  benefits, df1, benefits
+  benefits, df2, benefits
+  benefits, df3, 8
+  benefits, df4, C011
+
+  assets, df1, totercashsec
+  assets, df2, assets
+  assets, df3, 11
+  assets, df4, C015")
 xwalk %<>% filter(!is.na(file))
 xwalk
-df1xw <- select(filter(xwalk, file=="df1"), uvname, fvalue)
-df2xw <- select(filter(xwalk, file=="df2"), uvname, fvalue)
-df3xw <- select(filter(xwalk, file=="df3"), uvname, fvalue)
+
+df1xw <- xwalk %>% filter(file=="df1") %>% select(uvname, fvalue)
+df2xw <- xwalk %>% filter(file=="df2") %>% select(uvname, fvalue)
+df3xw <- xwalk %>% filter(file=="df3") %>% select(uvname, fvalue)
 # df4xw <- select(filter(xwalk, file=="df4"), uvname, fvalue)
 
 # focus on getting adminf right for each file, and creating admin from it
@@ -657,9 +659,9 @@ glimpse(df2a)
 glimpse(df3a)
 glimpse(df4a)
 glimpse(df5)
-count(df1a, year); count(df2a, year); count(df3a, year); count(df4a, year)
+count(df1a, year); count(df2a, year); count(df3a, year); count(df5, year)
 
-dfall <- bind_rows(df1a, df2a, df3a, rename(df5, uvname=vname)) %>%
+dfall <- bind_rows(df1a, df2a, df3a, df5 %>% rename(uvname=vname)) %>%
   rename(variable=uvname) %>%
   mutate(year=as.integer(year),
          adminf=as.character(factor(admin, levels=1:3, labels=c("State-local", "State", "Local")))) %>%

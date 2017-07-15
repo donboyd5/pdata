@@ -20,7 +20,7 @@ U.S. Bureau of the Census
 cenretss
 }
 \description{
-State-level summaries of Census Bureau Retirement Survey, selected years 1957-1977, annual 1982-2013.
+State-level summaries of Census Bureau Retirement Survey, selected years 1957-1977, annual 1982-2016.
 }
 \examples{
 library(dplyr)
