@@ -1,3 +1,4 @@
+# 10/9/2017
 
 
 #****************************************************************************************************
@@ -32,7 +33,7 @@ library("bdata")
 
 
 #****************************************************************************************************
-#                Get FRB data ####
+#                Get FRB data  - last year 2014 as of 10/9/2017 ####
 #****************************************************************************************************
 # https://www.federalreserve.gov/apps/fof/efa/efa-project-state-local-government-defined-benefit-pension-plans.htm
 # The FRB dollar data are in $ millions
@@ -42,19 +43,22 @@ frb.states.put <- "./data-raw/StatesBEAFRB/efa-state-pension-tables-annual-histo
 download.file(frb.states.url, frb.states.put, mode="wb")
 
 df.frb <- read_csv(frb.states.put)
+glimpse(df.frb)
 vnames <- c("year", "stname", "assets", "liabilities", "ufl", "fr", "ufl.gdp", "ufl.staterev")
 vdesc <- names(df.frb)
 
-statepen.frb <- df.frb %>% setNames(vnames) %>%
+statepen.frb <- df.frb %>%
+  setNames(vnames) %>%
   mutate(stabbr=stcodes$stabbr[match(stname, stcodes$stname)]) %>%
   gather(vname, value, -stabbr, -stname, -year) %>%
   mutate(vdesc=vdesc[match(vname, vnames)]) %>%
   select(stabbr, vname, vdesc, year, value)
 glimpse(statepen.frb)
 count(statepen.frb, stabbr)
+count(statepen.frb, year)
 count(statepen.frb, vname, vdesc)
 
-cmt <- "FRB Enhanced Accounts State Pension Tables, $ Millions, downloaded 2017-07-15. See package documentation for discount rates."
+cmt <- "FRB Enhanced Accounts State Pension Tables, $ Millions, FRB updated 2017-08-31. See package documentation for discount rates."
 comment(statepen.frb) <- cmt
 devtools::use_data(statepen.frb, overwrite=TRUE)
 
@@ -64,14 +68,15 @@ statepen.frb %>% filter(stabbr %in% c("US", "PA"), vname=="fr") %>%
 statepen.frb %>% filter(stabbr %in% c("US", "PA"), vname=="ufl.staterev") %>%
   ggplot(aes(year, value, colour=stabbr)) + geom_line() + geom_hline(yintercept = 0) + geom_point()
 
-statepen.frb %>% filter(stabbr %in% c("US", "PA"), vname=="ufl.gdp") %>%
+statepen.frb %>% filter(stabbr %in% c("US", "PA", "MN"), vname=="ufl.gdp") %>%
   ggplot(aes(year, value, colour=stabbr)) + geom_line() + geom_hline(yintercept = 0) + geom_point()
 
 
 #****************************************************************************************************
-#                Get BEA data ####
+#                Get BEA data - last year 2015 as of 10/9/2017 ####
 #****************************************************************************************************
 # BEA data is in $ Thousands but I convert to $ Millions
+# Landing page (look to the right for pensions): https://www.bea.gov/regional/
 
 bea.states.url <- "http://www.bea.gov/regional/xls/PensionEstimatesByState.xlsx"
 bea.states.put <- "./data-raw/StatesBEAFRB/PensionEstimatesByState.xlsx"
@@ -79,29 +84,42 @@ download.file(bea.states.url, bea.states.put, mode="wb")
 
 df.bea.liabs <- read_excel(bea.states.put, sheet="BenefitEntitlements", skip=3)
 glimpse(df.bea.liabs)
-names(df.bea.liabs)[1] <- "stname"
+names(df.bea.liabs)[1:2] <- c("fips", "stname")
 
 df.bea.ncer <- read_excel(bea.states.put, sheet="EmployerNormalCost", skip=3)
 glimpse(df.bea.ncer)
-names(df.bea.ncer)[1] <- "stname"
+names(df.bea.ncer)[1:2] <- c("fips", "stname")
 
-statepen.bea <- df.bea.liabs %>% mutate(vname="liabilities") %>% gather(year, value, -stname, -vname) %>%
-  bind_rows(df.bea.ncer %>% mutate(vname="nc.er") %>% gather(year, value, -stname, -vname))%>%
+statepen.bea <- df.bea.liabs %>%
+  select(-fips) %>%
+  mutate(vname="liabilities") %>%
+  gather(year, value, -stname, -vname) %>%
+  bind_rows(df.bea.ncer %>%
+              select(-fips) %>%
+              mutate(vname="nc.er") %>%
+              gather(year, value, -stname, -vname))%>%
   filter(!is.na(value)) %>%
   mutate(stabbr=stcodes$stabbr[match(stname, stcodes$stname)],
          value=value / 1000,
          year=as.integer(year)) %>%
   select(stabbr, vname, year, value)
 glimpse(statepen.bea)
+count(statepen.bea, vname)
+count(statepen.bea, year)
+count(statepen.bea, stabbr) # includes US and DC
 
-cmt <- "BEA State Pension Estimates Updated by BEA 2016-09-28. See package documentation for discount rates."
+cmt <- "BEA State Pension Estimates Updated by BEA 2017-09-26. See package documentation for discount rates."
 comment(statepen.bea) <- cmt
 devtools::use_data(statepen.bea, overwrite=TRUE)
+
 
 statepen.bea %>% filter(vname=="nc.er", stabbr=="CA") %>%
   ggplot(aes(year, value)) + geom_line()
 
-statepen.bea %>% filter(vname=="nc.er", stabbr %in% c("CA", "IL", "NY", "US")) %>%
+statepen.bea %>% filter(vname=="nc.er", stabbr=="MN") %>%
+  ggplot(aes(year, value)) + geom_line()
+
+statepen.bea %>% filter(vname=="nc.er", stabbr %in% c("CA", "IL", "MN", "NY", "US")) %>%
   group_by(stabbr) %>%
   arrange(year) %>%
   mutate(ivalue=value / value[year==2005] * 100) %>%
