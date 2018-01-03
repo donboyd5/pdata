@@ -34,7 +34,7 @@ library("btools") # library that I created (install from github)
 #****************************************************************************************************
 #                Functions ####
 #****************************************************************************************************
-safe.ifelse <- function(cond, yes, no) {structure(ifelse(cond, yes, no), class = class(yes))} # so dates don't lose their class!
+# safe.ifelse <- function(cond, yes, no) {structure(ifelse(cond, yes, no), class = class(yes))} # so dates don't lose their class!
 
 
 #****************************************************************************************************
@@ -130,7 +130,7 @@ glimpse(df2)
 # reset all date variables as character because they need to be inspected and converted
 datevars <- str_subset(names(df), coll("date", ignore_case = TRUE))
 datevars
-datevars <- c("fye", datevars)
+datevars <- c("fye", setdiff(datevars, "ReportingDateNotes"))
 datevars
 
 # look for integers that should be doubles
@@ -147,6 +147,7 @@ glimpse(df3)
 df4 <- df3 %>% mutate_at(vars(one_of(dblvars)), funs(as.double))
 glimpse(df4)
 glimpse(df4[, dblvars])
+glimpse(df4[, datevars])
 
 # VERIFY that the ORDER of df and df4 are the same, as replacement relied on that assumption
 o1 <- df %>% select(ppd_id, fy)
@@ -166,7 +167,9 @@ devtools::use_data(ppd.raw, overwrite=TRUE)
 load("./data/ppd.raw.rda")
 glimpse(ppd.raw)
 
-datevars <- c("fye", str_subset(names(ppd.raw), coll("date", ignore_case = TRUE)))
+datevars <- str_subset(names(df), coll("date", ignore_case = TRUE))
+datevars
+datevars <- c("fye", setdiff(datevars, "ReportingDateNotes"))
 datevars
 
 # tmp <- df %>% select(ppd_id, fy, one_of(datevars))
@@ -178,19 +181,30 @@ mdyfmt <- "ActValDate_ActuarialCosts"
 xlfmt <- setdiff(datevars, mdyfmt)
 
 
-dv3 <- dv2 %>% mutate_at(vars(one_of(xlfmt)), funs(as.numeric(.) %>% as.Date(origin="1899-12-30"))) %>%
+dv3 <- dv2 %>%
+  mutate_at(vars(one_of(xlfmt)), funs(as.numeric(.) %>% as.Date(origin="1899-12-30"))) %>%
   mutate_at(vars(one_of(mdyfmt)), funs(mdy(.) %>% as.Date()))
 
-# find the one3 that didn't parse
+# find the ones that didn't parse
 comp <- dv2 %>% select(ppd_id, fy, ActValDate_ActuarialCosts.c=ActValDate_ActuarialCosts) %>%
   filter(!is.na(ActValDate_ActuarialCosts.c)) %>%
   left_join(dv3 %>% select(ppd_id, fy, ActValDate_ActuarialCosts)) %>%
   filter(is.na(ActValDate_ActuarialCosts))
+comp
 # ppd_id    fy ActValDate_ActuarialCosts.c ActValDate_ActuarialCosts
 # <int> <int>                       <chr>                    <date>
 #   1     25  2004                         N/A                        NA
 # 2    165  2015                      SH(cm)                        NA
 # good - were bad in original
+tmp <- comp %>%
+  select(ppd_id) %>%
+  left_join(ppd.raw) %>%
+  filter(fy>=2010) %>%
+  select(ppd_id, fy, PlanName, one_of(datevars)) %>%
+  mutate_at(vars(one_of(xlfmt)), funs(as.numeric(.) %>% as.Date(origin="1899-12-30"))) %>%
+  mutate_at(vars(one_of(mdyfmt)), funs(mdy(.) %>% as.Date()))
+tmp
+
 
 df2 <- ppd.raw
 df2[, datevars] <- dv3[, datevars]
