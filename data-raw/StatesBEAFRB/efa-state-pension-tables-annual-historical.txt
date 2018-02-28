@@ -1,0 +1,8 @@
+Label						Description
+Date: Region					Yearly observation date, beginning of period. US state and local government entity.
+Pension assets (billions)			Pension assets at market value. Includes defined-benefit pension plans sponsored by state and local governments for their employees. Billions of dollars.
+Pension liabilities (billions)			Pension liabilities. Includes defined-benefit pension plans sponsored by state and local governments for their employees. Billions of dollars.
+Funding status (billions)			Assets less liabilities. Negative values indicate underfunding of pension plans. Billions of dollars.
+Assets as a percent of liabilities		Assets as a percent of liabilities.
+Funding status as a percent of state GDP	Funding status as a percent of state GDP.	
+Funding status as a percent of state revenue	Funding status as a percent of state revenue.
