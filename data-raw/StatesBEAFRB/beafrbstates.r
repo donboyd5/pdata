@@ -33,8 +33,10 @@ library("bdata")
 
 
 #****************************************************************************************************
-#                Get FRB data  - last year 2014 as of 10/9/2017 ####
+#                Get FRB data  - last year 2016 as of 2018-10-14 ####
 #****************************************************************************************************
+# Table L.120.b
+# http://www.federalreserve.gov/apps/fof/DisplayTable.aspx?t=l.120.b
 # https://www.federalreserve.gov/apps/fof/efa/efa-project-state-local-government-defined-benefit-pension-plans.htm
 # Update (2/28/2018), now in the dataviz area:
 # https://www.federalreserve.gov/releases/z1/dataviz/pension/index.html
@@ -71,27 +73,48 @@ count(statepen.frb, vname, vdesc)
 
 statepen.frb %>% filter(is.na(value)) # ufl.staterev is missing in 2003, except for U.S.
 
-cmt <- "FRB Enhanced Accounts State Pension Tables, $ Millions, FRB updated 2018-01-11. See package documentation for discount rates."
+cmt <- "FRB Enhanced Accounts State Pension Tables, $ Millions, FRB updated 2018-10-04. See package documentation for discount rates."
 comment(statepen.frb) <- cmt
 devtools::use_data(statepen.frb, overwrite=TRUE)
 
-statepen.frb %>% filter(stabbr %in% c("US", "PA"), vname=="fr") %>%
-  ggplot(aes(year, value, colour=stabbr)) + geom_line() + geom_point() + geom_hline(yintercept = 100)
+sts <- c("US", "PA")
+sts <- c("US", "CT", "IL", "KY", "PA", "NJ")
 
-statepen.frb %>% filter(stabbr %in% c("US", "PA"), vname=="ufl.staterev") %>%
-  ggplot(aes(year, value, colour=stabbr)) + geom_line() + geom_point() + geom_hline(yintercept = 0) + geom_point()
+statepen.frb %>% filter(stabbr %in% sts, vname=="fr") %>%
+  ggplot(aes(year, value, colour=stabbr)) +
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept = 100) +
+  ggtitle("Funded ratio of all public DB plans in a state, per BEA")
 
-statepen.frb %>% filter(stabbr %in% c("US", "PA", "MN"), vname=="ufl.gdp") %>%
-  ggplot(aes(year, value, colour=stabbr)) + geom_line() + geom_hline(yintercept = 0) + geom_point()
+statepen.frb %>% filter(stabbr %in% sts, vname=="ufl.staterev") %>%
+  ggplot(aes(year, value, colour=stabbr)) +
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  ggtitle("Unfunded liability of all public DB plans in a state, as % of state revenue per BEA")
+
+statepen.frb %>% filter(stabbr %in% sts, vname=="ufl.gdp") %>%
+  ggplot(aes(year, value, colour=stabbr))+
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  scale_y_continuous(breaks=seq(-100, 100, 10)) +
+  scale_x_continuous(breaks=2000:2020) +
+  ggtitle("Unfunded liability of all public DB plans in a state, as % of state GDP per BEA")
 
 
 #****************************************************************************************************
-#                Get BEA data - last year 2015 as of 1/26/2018 ####
+#                Get BEA data - last year 2015 as of 2018-10-14 ####
 #****************************************************************************************************
 # BEA data is in $ Thousands but I convert to $ Millions
 # Landing page (look to the right for pensions): https://www.bea.gov/regional/
 
-bea.states.url <- "http://www.bea.gov/regional/xls/PensionEstimatesByState.xlsx"
+# bea.states.url <- "http://www.bea.gov/regional/xls/PensionEstimatesByState.xlsx"
+# bea.states.url <- "https://www.bea.gov/regional/xls/PensionEstimatesByState.xlsx"
+# bea.states.url <- "https://204.14.133.132/regional/xls/PensionEstimatesbyState.xlsx" NO GOOD
+
+bea.states.url <- "https://apps.bea.gov/regional/xls/PensionEstimatesByState.xlsx"
 bea.states.put <- "./data-raw/StatesBEAFRB/PensionEstimatesByState.xlsx"
 download.file(bea.states.url, bea.states.put, mode="wb")
 
@@ -121,7 +144,7 @@ count(statepen.bea, vname)
 count(statepen.bea, year)
 count(statepen.bea, stabbr) # includes US and DC
 
-cmt <- "BEA State Pension Estimates Updated by BEA 2018-01-26. See package documentation for discount rates."
+cmt <- "BEA State Pension Estimates Updated by BEA 2018-09-25. See package documentation for discount rates."
 comment(statepen.bea) <- cmt
 devtools::use_data(statepen.bea, overwrite=TRUE)
 
@@ -132,7 +155,7 @@ statepen.bea %>% filter(vname=="nc.er", stabbr=="CA") %>%
 statepen.bea %>% filter(vname=="nc.er", stabbr=="MN") %>%
   ggplot(aes(year, value)) + geom_line() + geom_point()
 
-statepen.bea %>% filter(vname=="nc.er", stabbr %in% c("CA", "IL", "MN", "NY", "US")) %>%
+statepen.bea %>% filter(vname=="nc.er", stabbr %in% sts) %>%
   group_by(stabbr) %>%
   arrange(year) %>%
   mutate(ivalue=value / value[year==2005] * 100) %>%
@@ -146,12 +169,17 @@ statepen.bea %>% filter(vname=="nc.er", stabbr %in% c("CA", "IL", "MN", "NY", "U
 count(statepen.frb, vname)
 count(statepen.bea, vname)
 
-df1 <- statepen.frb %>% filter(vname=="liabilities") %>%
+df1 <- statepen.frb %>%
+  filter(vname=="liabilities") %>%
   select(vname, stabbr, year, liab=value) %>%
   mutate(file="frb")
-df2 <- statepen.bea %>% filter(vname=="liabilities") %>%
+
+df2 <- statepen.bea %>%
+  filter(vname=="liabilities") %>%
   select(vname, stabbr, year, liab=value) %>%
   mutate(file="bea")
+
 df3 <- bind_rows(df1, df2)
+
 df3 %>% filter(stabbr=="NY") %>%
   ggplot(aes(year, liab, colour=file)) + geom_line() + geom_point()

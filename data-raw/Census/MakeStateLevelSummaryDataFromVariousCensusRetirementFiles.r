@@ -39,7 +39,8 @@
 
 # 4) 2012+
 #    Currently it looks like I need to use the data available through American Fact Finder, available through the same
-#    Census download site http://www.census.gov/govs/retire/
+#    https://factfinder.census.gov
+#    OLD:  Census download site http://www.census.gov/govs/retire/
 
 
 
@@ -73,7 +74,6 @@ cenxl2 <- paste0(censs, "Excel2004to2011/")
 affdir <- paste0(censs, "AmericanFactFinder2012plus/")
 
 
-
 #************************************************************************************************************************
 #                Downloads, ONLY when needed ####
 #************************************************************************************************************************
@@ -82,7 +82,6 @@ histdb <- "1_Emp_Retire_Historical_DB.zip"
 urldir <- "http://www2.census.gov/pub/outgoing/govs/special60/"
 url <- paste0(urldir, histdb)
 download.file(url, paste0(cendir, histdb), mode="wb")
-
 
 
 #************************************************************************************************************************
@@ -349,6 +348,8 @@ saveRDS(ssdf2, paste0(cendir, "statesummary2004to2011.rds"))
 # create statesummary2012plus_ASPP.rds
 # These new data appeared on the Census site ~ June 2016 and may be an alternative to the
 # American Fact Finder version of the 2012+ data
+# Look for it through https://factfinder.census.gov
+# https://www.census.gov/data/tables/2017/econ/aspp/aspp-historical-tables.html
 # ASPP_data_2012plus
 # format: year int, stabbr chr, admin int, adminf chr, variable, value
 # variable: actives, assets, beneficiaries, benefits, eec, erc, erc.lg, erc.sg,
@@ -386,9 +387,9 @@ getASPP_2012 <- function(yr) {
   return(tmp2)
 }
 # getASPP_2012(2012)
-# yr <- 2016
+# yr <- 2017
 
-getASPP_2013_plus <- function(yr) {
+getASPP_2013_2016 <- function(yr) {
   fn <- paste0(yr, "ASPPSummary.xlsx")
   tmp <- read_excel(paste0(asppdir, fn))
   # in 2013+ there are 6 columns, State & Local, CV for State & Local, State, CV for State, Local,	CV Local
@@ -421,15 +422,42 @@ getASPP_2013_plus <- function(yr) {
   return(tmp2)
 }
 
+getASPP_2017 <- function(yr) {
+  fn <- paste0(yr, "asppsummary.xlsx")
+  tmp <- read_excel(paste0(asppdir, fn))
+  # In 2017 there are 3 columns for each state: state-local, state, local
+  stnames <- names(tmp)[-1]
+  stvals <- seq(1, 154, 3)
+  stnames[stvals]
+  stnames[stvals+1] <- stnames[stvals]
+  stnames[stvals+2] <- stnames[stvals]
+  stabs <- stcodes$stabbr[match(stnames, stcodes$stname)] %>% as.character
+  tmp2 <- tmp %>% setNames(c("vartext", paste0(stabs, "_", c(1:3)))) %>%
+    gather(stabbadmin, value, -vartext) %>%
+    separate(stabbadmin, c("stabbr", "admin")) %>%
+    mutate(year=yr,
+           admin=as.integer(admin),
+           value=as.numeric(value)) %>%
+    filter(!is.na(value)) %>%
+    right_join(asppxw) %>%
+    mutate(value=ifelse(value==0 & vname %in% c("payroll", "penob"), NA, value)) %>%
+    filter(!is.na(value))
+  return(tmp2)
+}
+
+
 getASPP <- function(yr) {
   if(yr==2012) df <- getASPP_2012(yr) else
-    df <- getASPP_2013_plus(yr)
+    if(yr %in% 2013:2016) df <- getASPP_2013_2016(yr) else
+      if(yr==2017) df <- getASPP_2017(yr)
   return(df)
 }
 
 getASPP(2015)
+getASPP(2016)
+getASPP(2017)
 
-df <- ldply(2012:2016, getASPP) %>% select(stabbr, year, admin, vname, value)
+df <- ldply(2012:2017, getASPP) %>% select(stabbr, year, admin, vname, value)
 count(df, year)
 count(df, stabbr)
 count(df, admin)
@@ -525,6 +553,7 @@ count(df1, variable)
 count(df2, variable)
 count(df3, ItemID, ItemName)
 # old tmp <- count(df4, col, description)
+count(df5, year)
 
 
 # variable, variable, ItemID, col -are the "native" variables for df1-df4 respectively
