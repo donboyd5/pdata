@@ -1,15 +1,16 @@
 Package: pdata
 Type: Package
 Title: Pension Data
-Version: 0.1
-Date: 2015-05-02
+Version: 0.2
+Date: 2019-03-26
 Authors@R: person("Boyd", "Don", email = "donboyd5@gmail.com",
   role = c("aut", "cre"))
 Description: Selected data on pension funds and state-level pension data.
 Depends:
-    R (>= 3.1.0)
+    R (>= 3.4.0)
 Suggests:
     dplyr
 License: GPL-2
 LazyData: TRUE
-RoxygenNote: 6.1.0
+Encoding: UTF-8
+RoxygenNote: 6.1.1

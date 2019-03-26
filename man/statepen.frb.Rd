@@ -12,7 +12,7 @@
 \item{value}{Value; dollar amounts are in $ millions, numeric}
 }}
 \source{
-Federal Reserve Board https://www.federalreserve.gov/apps/fof/efa/efa-project-state-local-government-defined-benefit-pension-plans.htm
+Federal Reserve Board
 }
 \usage{
 statepen.frb
@@ -22,7 +22,15 @@ State and Local Government Defined Benefit Pension Plans: State-level Detail, an
 Liabilities and discounted at the following rates:
   2000-2003:  6.0%
   2004-2009:  5.5%
-  2010-2014:  5.0%.
+  2010-2012:  5.0%.
+  2013-2016:  4.0%
+}
+\details{
+Per email from David Lenze, October 22, 2018: With the comprehensive update of the NIPAs released in July 2018,
+  BEA lowered the NIPA discount rate to 4.0% for 2013 to the present. Previously, it has been 5.0% from 2013-2016.
+
+Landing: https://www.federalreserve.gov/apps/fof/efa/efa-project-state-local-government-defined-benefit-pension-plans.htm
+Data: https://www.federalreserve.gov/apps/fof/efa/efa-project-state-local-government-defined-benefit-pension-plans.htm
 }
 \examples{
 library(dplyr)

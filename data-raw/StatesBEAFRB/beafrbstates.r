@@ -1,4 +1,4 @@
-# 2/28/2018
+# 3/26/2019
 
 
 #****************************************************************************************************
@@ -29,7 +29,8 @@ library("bdata")
 # Note - BEA used the following discount rates for the years of this data:
 # 2000-2003 6.0%
 # 2004-2009 5.5%
-# 2010-2014 5.0%
+# 2010-2012:  5.0%.
+# 2013-2016:  4.0%
 
 
 #****************************************************************************************************
@@ -49,7 +50,7 @@ library("bdata")
 
 frb.states.url <- "https://www.federalreserve.gov/releases/z1/dataviz/download/zips/efa-state-pension-tables-annual-historical.zip"
 frb.states.put <- "./data-raw/StatesBEAFRB/efa-state-pension-tables-annual-historical.zip"
-download.file(frb.states.url, frb.states.put, mode="wb")
+# download.file(frb.states.url, frb.states.put, mode="wb")
 
 unzip(frb.states.put, exdir="./data-raw/StatesBEAFRB", overwrite = TRUE)
 csv.name <- "./data-raw/StatesBEAFRB/efa-state-pension-tables-annual-historical.csv"
@@ -75,16 +76,18 @@ statepen.frb %>% filter(is.na(value)) # ufl.staterev is missing in 2003, except 
 
 cmt <- "FRB Enhanced Accounts State Pension Tables, $ Millions, FRB updated 2018-10-04. See package documentation for discount rates."
 comment(statepen.frb) <- cmt
-devtools::use_data(statepen.frb, overwrite=TRUE)
+usethis::use_data(statepen.frb, overwrite=TRUE)
 
 sts <- c("US", "PA")
 sts <- c("US", "CT", "IL", "KY", "PA", "NJ")
+sts <- c("US", "NY", "PA", "RI")
 
 statepen.frb %>% filter(stabbr %in% sts, vname=="fr") %>%
   ggplot(aes(year, value, colour=stabbr)) +
   geom_line() +
   geom_point() +
   geom_hline(yintercept = 100) +
+  scale_y_continuous(breaks=seq(0, 100, 10)) +
   ggtitle("Funded ratio of all public DB plans in a state, per BEA")
 
 statepen.frb %>% filter(stabbr %in% sts, vname=="ufl.staterev") %>%
@@ -92,6 +95,7 @@ statepen.frb %>% filter(stabbr %in% sts, vname=="ufl.staterev") %>%
   geom_line() +
   geom_point() +
   geom_hline(yintercept = 0) +
+  scale_y_continuous(breaks=seq(-500, 100, 10)) +
   ggtitle("Unfunded liability of all public DB plans in a state, as % of state revenue per BEA")
 
 statepen.frb %>% filter(stabbr %in% sts, vname=="ufl.gdp") %>%
@@ -99,7 +103,7 @@ statepen.frb %>% filter(stabbr %in% sts, vname=="ufl.gdp") %>%
   geom_line() +
   geom_point() +
   geom_hline(yintercept = 0) +
-  scale_y_continuous(breaks=seq(-100, 100, 10)) +
+  scale_y_continuous(breaks=seq(-100, 100, 2)) +
   scale_x_continuous(breaks=2000:2020) +
   ggtitle("Unfunded liability of all public DB plans in a state, as % of state GDP per BEA")
 
@@ -165,6 +169,12 @@ statepen.bea %>% filter(vname=="nc.er", stabbr %in% sts) %>%
 #****************************************************************************************************
 #                Compare liabilities, both sources ####
 #****************************************************************************************************
+count(statepen.frb, year)
+count(statepen.bea, year)
+
+count(statepen.frb, vname)
+count(statepen.bea, vname)
+
 # Good - the liabilities match (extremely closely)
 count(statepen.frb, vname)
 count(statepen.bea, vname)
