@@ -1,4 +1,4 @@
-# 10/14/2018
+# 10/10/2019
 
 # Get Public Plans Database (PPD), now (5/1/2015 and later) sponsored cooperatively by:
 #   Center for State and Local Government Excellence
@@ -10,6 +10,7 @@
 #****************************************************************************************************
 
 library("devtools")
+library("usethis")
 
 library("magrittr")
 library("plyr") # needed for ldply; must be loaded BEFORE dplyr
@@ -40,6 +41,19 @@ library("btools") # library that I created (install from github)
 #****************************************************************************************************
 #                Define directories, filenames, etc. ####
 #****************************************************************************************************
+
+# djb 10/10/2019:
+#  Go to https://publicplansdata.org/public-plans-database/download-full-data-set/#"
+#  and manually download the data set to /data-raw/ppd
+
+ppd.dir <- "./data-raw/ppd/"
+
+vlist.webdir <- "http://publicplansdata.org/wp-content/uploads/2015/04/" # maybe update this?
+vlist.fn <- "Variable-List1.xlsx"
+download.file(paste0(vlist.webdir, vlist.fn), paste0(ppd.dir, vlist.fn), mode="wb")
+# rename to 2019-10-10_Variable-List1.xlsx
+
+
 # parent directory for PPD data:
 #   http://publicplansdata.org/public-plans-database/download-full-data-set/
 
@@ -49,23 +63,25 @@ library("btools") # library that I created (install from github)
 # full file name:
 # http://publicplansdata.org/wp-content/uploads/2016/12/PPD_PlanLevel.xlsx
 
-ppd.dir <- "./data-raw/ppd/"
+# https://publicplansdata.org/public-plans-database/download-full-data-set/#
 
-ppd.webdir <- "http://publicplansdata.org/wp-content/uploads/2016/12/" # cannot access directly
-ppd.webfn <- "PPD_PlanLevel.xlsx"
 
-vlist.webdir <- "http://publicplansdata.org/wp-content/uploads/2015/04/"
-vlist.webfn <- "Variable-List1.xlsx"
 
-ppd.u <- paste0(ppd.webdir, ppd.webfn)
-vlist.u <- paste0(vlist.webdir, vlist.webfn)
-
-downloaddate <- format(Sys.time(), '%Y-%m-%d')
-# downloaddate <- "2015-05-01" # or examine data from a specific date
-
-# local filenames
-ppd.localfn <- paste0(downloaddate, "_", ppd.webfn)
-vlist.localfn <- paste0(downloaddate, "_", vlist.webfn)
+# ppd.webdir <- "http://publicplansdata.org/wp-content/uploads/2016/12/" # cannot access directly
+# ppd.webfn <- "PPD_PlanLevel.xlsx"
+#
+# vlist.webdir <- "http://publicplansdata.org/wp-content/uploads/2015/04/"
+# vlist.webfn <- "Variable-List1.xlsx"
+#
+# ppd.u <- paste0(ppd.webdir, ppd.webfn)
+# vlist.u <- paste0(vlist.webdir, vlist.webfn)
+#
+# downloaddate <- format(Sys.time(), '%Y-%m-%d')
+# # downloaddate <- "2015-05-01" # or examine data from a specific date
+#
+# # local filenames
+# ppd.localfn <- paste0(downloaddate, "_", ppd.webfn)
+# vlist.localfn <- paste0(downloaddate, "_", vlist.webfn)
 
 ## Older links
 # ppd.webdir <- "http://publicplansdata.org/wp-content/uploads/2015/04/"
@@ -75,24 +91,27 @@ vlist.localfn <- paste0(downloaddate, "_", vlist.webfn)
 # ppd.webfn <- "PPD_PlanLevelData.xlsx"
 
 
-
 #****************************************************************************************************
 #                Download and save raw data, with download date prefixed to file names ####
 #****************************************************************************************************
-
-download.file(ppd.u, paste0(ppd.dir, ppd.localfn), mode="wb")
-download.file(vlist.u, paste0(ppd.dir, vlist.localfn), mode="wb")
+# download.file(ppd.u, paste0(ppd.dir, ppd.localfn), mode="wb")
+# download.file(vlist.u, paste0(ppd.dir, vlist.localfn), mode="wb")
 
 
 #****************************************************************************************************
 #                Clean variable info slightly, then save in package data directory ####
 #****************************************************************************************************
-df <- read_excel(paste0(ppd.dir, vlist.localfn))
+fn <- "2019-10-10_Variable-List1.xlsx"
+df <- read_excel(paste0(ppd.dir, fn), sheet="Codebook_revised")
 glimpse(df)
 # doesn't really look to need cleaning
-ppdvars <- df
-comment(ppdvars) <- vlist.localfn
-devtools::use_data(ppdvars, overwrite=TRUE)
+ppdvars <- df %>%
+  rename(`Data sources_secondary`=`...8`,
+         Imputations_secondary=`...10`) %>%
+  filter(row_number()!=1)
+glimpse(ppdvars)
+comment(ppdvars) <- fn
+usethis::use_data(ppdvars, overwrite=TRUE)
 
 
 #****************************************************************************************************
