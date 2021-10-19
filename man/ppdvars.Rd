@@ -4,7 +4,9 @@
 \name{ppdvars}
 \alias{ppdvars}
 \title{Public Plans Database variables.}
-\format{Data frame with 1 row per variable.}
+\format{
+Data frame with 1 row per variable.
+}
 \source{
 Center for State and Local Government Excellence (SLGE),\cr
         National Association of State Retirement Administrators (NASRA), and\cr

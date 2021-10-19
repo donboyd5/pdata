@@ -3,7 +3,6 @@
 \docType{package}
 \name{pdata}
 \alias{pdata}
-\alias{pdata-package}
 \title{Data for analysis of public pension plans.}
 \description{
 Currently includes:\cr

@@ -4,7 +4,9 @@
 \name{ppd}
 \alias{ppd}
 \title{Public plans database.}
-\format{Data frame with 1 row per plan per year, with more than 200 variables. See ppdvars for documentation on variables.}
+\format{
+Data frame with 1 row per plan per year, with more than 200 variables. See ppdvars for documentation on variables.
+}
 \source{
 Center for State and Local Government Excellence (SLGE),\cr
         National Association of State Retirement Administrators (NASRA), and\cr

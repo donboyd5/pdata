@@ -4,13 +4,15 @@
 \name{statepen.frb}
 \alias{statepen.frb}
 \title{Federal Reserve Board state summaries.}
-\format{Data frame with 1 row per state per variable per year.
+\format{
+Data frame with 1 row per state per variable per year.
 \describe{
 \item{stabbr}{State postal abbreviation, character}
 \item{vname}{Variable name}
 \item{year}{Calendar year, integer}
 \item{value}{Value; dollar amounts are in $ millions, numeric}
-}}
+}
+}
 \source{
 Federal Reserve Board
 }

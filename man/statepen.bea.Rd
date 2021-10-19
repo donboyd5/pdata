@@ -4,13 +4,15 @@
 \name{statepen.bea}
 \alias{statepen.bea}
 \title{Bureau of Economic Analysis state summaries.}
-\format{Data frame with 1 row per state per variable per year.
+\format{
+Data frame with 1 row per state per variable per year.
 \describe{
 \item{stabbr}{State postal abbreviation, character}
 \item{vname}{Variable name}
 \item{year}{Calendar year, integer}
 \item{value}{Value; dollar amounts are in $ millions, numeric}
-}}
+}
+}
 \source{
 Bureau of Economic Analysis http://apps.bea.gov/regional/xls/PensionEstimatesByState.xlsx
 }
